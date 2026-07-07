@@ -189,7 +189,7 @@
                 url: '{{ route('admin.utility.unreadNotification') }}',
                 type: 'POST',
                 data: {
-                    id: '{{ encrypt(Auth::user()->pk_user_id) }}'
+                    id: '{{ encrypt(Auth::user()->pk_hseuser_id) }}'
                 },
                 success: function(response) {
                     $('.notif-badge').text(response.count);
@@ -217,7 +217,7 @@
                         type: 'POST',
                         data: {
                             token: response,
-                            id: '{{ encrypt(Auth::user()->pk_user_id) }}'
+                            id: '{{ encrypt(Auth::user()->pk_hseuser_id) }}'
                         },
                         dataType: 'JSON',
                         success: function(response) {},

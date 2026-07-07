@@ -35,17 +35,15 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-3">
-                                        <input type="hidden" class="form-control rounded-0" id="emp_id" name="emp_id"
-                                            value="{{ $datauser->fk_employee_id }}">
                                         <div class="form-group">
-                                            <label for="emp_no">User</label>
+                                            <label for="emp_no">Employee No</label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control rounded-0" id="emp_no"
                                                     name="emp_no" value="{{ $datauser->employee_no }}">
-                                                <span class="input-group-append">
+                                                <!-- <span class="input-group-append">
                                                     <button type="button" id="emp_search" name="emp_search"
                                                         class="btn btn-info btn-flat">Cari</button>
-                                                </span>
+                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
@@ -53,7 +51,7 @@
                                         <div class="form-group">
                                             <label for="emp_name">Nama</label>
                                             <input type="text" id="emp_name" name="emp_name" class="form-control"
-                                                readonly value="{{ $datauser->full_name }}"">
+                                                value="{{ $datauser->name }}">
                                         </div>
                                     </div>
                                 </div>
@@ -216,7 +214,7 @@
         <!-- /.container-fluid -->
 
         <!-- /.modal -->
-        <div class="modal fade" id="modal-data" tabindex="-1" role="dialog">
+        <!-- <div class="modal fade" id="modal-data" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -243,12 +241,9 @@
                         <button type="button" class="btn btn-default"
                             onclick=" $('#modal-data').modal('hide');">Close</button>
                     </div>
-                </div>
-                <!-- /.modal-content -->
+                </div> 
             </div>
-            <!-- /.modal-dialog -->
-        </div>
-        <!-- /.modal -->
+        </div> -->
     </section>
     <!-- Main content -->
 @endsection
@@ -256,28 +251,28 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            var obj_table = $("#dataTable").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "processing": true,
-                "serverSide": true,
-                "autoWidth": false,
-                "ajax": {
-                    url: "{!! route('admin.users.employeedatatables') !!}",
-                    type: "POST",
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                    }
-                },
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            });
+            // var obj_table = $("#dataTable").DataTable({
+            //     "responsive": true,
+            //     "lengthChange": false,
+            //     "processing": true,
+            //     "serverSide": true,
+            //     "autoWidth": false,
+            //     "ajax": {
+            //         url: "{!! route('admin.users.employeedatatables') !!}",
+            //         type: "POST",
+            //         data: {
+            //             "_token": "{{ csrf_token() }}",
+            //         }
+            //     },
+            //     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            // });
 
             $('#emp_search').click(function(e) {
                 e.preventDefault();
                 $('#modal-data').modal('show');
             });
 
-            $('#dataTable tbody').on('click', '.selected-item', function() {
+            /*$('#dataTable tbody').on('click', '.selected-item', function() {
                 var row = $(this).closest('tr');
                 var data = obj_table.row(row).data();
                 var id = $(this).attr("data-id");
@@ -286,7 +281,7 @@
                 $('#emp_name').val(data[1]);
 
                 $('#modal-data').modal('hide');
-            });
+            });*/
 
             $("#addgroup").click(function(e) {
                 e.preventDefault();

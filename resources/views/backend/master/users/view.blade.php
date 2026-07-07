@@ -32,10 +32,8 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <input type="hidden" class="form-control rounded-0" id="emp_id" name="emp_id"
-                                        value="{{ $datauser->fk_employee_id }}">
                                     <div class="form-group">
-                                        <label for="emp_no">User</label>
+                                        <label for="emp_no">Employee No</label>
                                         <input type="text" class="form-control rounded-0" id="emp_no" name="emp_no"
                                             value="{{ $datauser->employee_no }}" readonly>
                                     </div>
@@ -44,7 +42,7 @@
                                     <div class="form-group">
                                         <label for="emp_name">Nama</label>
                                         <input type="text" id="emp_name" name="emp_name" class="form-control" readonly
-                                            value="{{ $datauser->full_name }}"">
+                                            value="{{ $datauser->name }}">
                                     </div>
                                 </div>
                             </div>

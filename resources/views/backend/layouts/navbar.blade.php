@@ -83,7 +83,7 @@
                         class="img-size-50 img-circle mr-3">
                     <div class="media-body">
                         <h3 class="dropdown-item-title">
-                            {{ Auth::user()->full_name }}
+                            {{ Auth::user()->name }}
                         </h3>
                     </div>
                 </div>

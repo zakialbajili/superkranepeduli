@@ -33,24 +33,23 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-3">
-                                        <input type="hidden" class="form-control rounded-0" id="emp_id" name="emp_id">
+                                        <!-- <input type="hidden" class="form-control rounded-0" id="emp_id" name="emp_id"> -->
                                         <div class="form-group">
-                                            <label for="emp_no">User</label>
+                                            <label for="emp_no">Employee No</label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control rounded-0" id="emp_no"
-                                                    name="emp_no" value="{{ old('emp_no') }}">
-                                                <span class="input-group-append">
+                                                    name="emp_no" >
+                                                <!-- <span class="input-group-append">
                                                     <button type="button" id="emp_search" name="emp_search"
                                                         class="btn btn-info btn-flat">Cari</button>
-                                                </span>
+                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-9">
                                         <div class="form-group">
                                             <label for="emp_name">Nama</label>
-                                            <input type="text" id="emp_name" name="emp_name" class="form-control"
-                                                readonly value="{{ old('emp_name') }}">
+                                            <input type="text" id="emp_name" name="emp_name" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -218,11 +217,8 @@
                             onclick=" $('#modal-data').modal('hide');">Close</button>
                     </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
         </div>
-        <!-- /.modal -->
     </section>
     <!-- Main content -->
 @endsection
@@ -230,34 +226,34 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            var obj_table = $("#dataTable").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "processing": true,
-                "serverSide": true,
-                "autoWidth": false,
-                "ajax": {
-                    url: "{!! route('admin.users.employeedatatables') !!}",
-                    type: "POST",
-                },
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            });
+            // var obj_table = $("#dataTable").DataTable({
+            //     "responsive": true,
+            //     "lengthChange": false,
+            //     "processing": true,
+            //     "serverSide": true,
+            //     "autoWidth": false,
+            //     "ajax": {
+            //         url: "{!! route('admin.users.employeedatatables') !!}",
+            //         type: "POST",
+            //     },
+            //     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            // });
 
             $('#emp_search').click(function(e) {
                 e.preventDefault();
                 $('#modal-data').modal('show');
             });
 
-            $('#dataTable tbody').on('click', '.selected-item', function() {
-                var row = $(this).closest('tr');
-                var data = obj_table.row(row).data();
-                var id = $(this).attr("data-id");
-                $('#emp_id').val(id);
-                $('#emp_no').val(data[0]);
-                $('#emp_name').val(data[1]);
+            // $('#dataTable tbody').on('click', '.selected-item', function() {
+            //     var row = $(this).closest('tr');
+            //     var data = obj_table.row(row).data();
+            //     var id = $(this).attr("data-id");
+            //     $('#emp_id').val(id);
+            //     $('#emp_no').val(data[0]);
+            //     $('#emp_name').val(data[1]);
 
-                $('#modal-data').modal('hide');
-            });
+            //     $('#modal-data').modal('hide');
+            // });
 
             $("#addgroup").click(function(e) {
                 e.preventDefault();

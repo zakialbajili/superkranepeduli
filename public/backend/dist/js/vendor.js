@@ -608,3 +608,38 @@ function calcOvertime(scan_masuk, scan_keluar, istirahat_normal, istirahat_lembu
 
 
 }
+function dataTableBoilerPlate(id, route, data, order = [[0, 'asc']], columnDefs = []) {
+    let table = $(`#${id}`);
+    if ($.fn.DataTable.isDataTable(`#${id}`)) {
+        return table.DataTable();
+    }
+    let dt = table.DataTable({
+        processing: true,
+        iDisplayLength: 10,
+        responsive: false,
+        scrollX: true,
+        scrollY: 350,
+        scrollCollapse: true,
+        serverSide: true,
+        autoWidth: false,
+        columnDefs: columnDefs,
+        ajax: {
+            url: route,
+            type: "POST",
+            data: data
+        },
+        order: order
+    });
+    let timer;
+    // Add debounce to prevent many request by search trigger
+    $(`#${id}_filter input`)
+        .off('.DT')
+        .on('keyup', function () {
+            clearTimeout(timer);
+            let value = this.value;
+            timer = setTimeout(function () {
+                dt.search(value).draw();
+            }, 1000);
+        });
+    return dt;
+}

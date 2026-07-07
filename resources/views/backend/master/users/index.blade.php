@@ -57,21 +57,11 @@
 @push('scripts')
     <script>
         $(function() {
-            $("#dataTable").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "processing": true,
-                "serverSide": true,
-                "autoWidth": false,
-                "ajax": {
-                    url: "{!! route('admin.users.datatables') !!}",
-                    type: "POST",
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                    }
-                },
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#dataTable_wrapper .col-md-6:eq(0)');
+            var obj_User = dataTableBoilerPlate(
+                'dataTable',
+                "{!! route('admin.users.datatables') !!}",
+                {},
+            )
 
             $('body').on('click', '.change-status', function() {
                 let isChecked = $(this).is(':checked');

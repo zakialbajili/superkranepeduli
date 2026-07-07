@@ -81,16 +81,14 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
-            'emp_id' => ['required', 'integer'],
             'emp_no' => ['required', 'string'],
             'groupdata' => ['required', 'string'],
             'default_page' => ['required'],
             'roledata' => ['required', 'string'],
             'password' => 'required|confirmed|min:6|max:20',
         ], [
-            'emp_id.required' => 'Karyawan harus diisi dengan benar',
-            'emp_id.integer' => 'Karyawan harus diisi dengan benar',
             'emp_no.required' => 'NIK Karyawan harus diisi dengan benar',
             'default_page.required' => 'Halaman Utama harus diisi dengan benar',
             'emp_no.string' => 'NIK Karyawan harus diisi dengan benar',
@@ -104,22 +102,20 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
-
             $LogActivity = [];
             $LogActivity['NEW']['USER'] = [
-                'fk_employee_id' => $request->emp_id,
                 'full_name' => $request->emp_name,
                 'username' => $request->emp_no,
                 'fk_module_id' => decryptForNumber($request->default_page),
             ];
-            $userid = DB::table('tuser2')->insertGetId(
+            $isactive =  boolval($request->status);
+            $userid = DB::table('thseuser')->insertGetId(
                 [
-                    'fk_employee_id' => $request->emp_id,
-                    'full_name' => $request->emp_name,
+                    'name' => $request->emp_name,
+                    'employee_no' => $request->emp_no,
                     'fk_module_id' => decryptForNumber($request->default_page),
-                    'username' => $request->emp_no,
                     'password' => bcrypt($request->password),
-                    'active' => $request->status,
+                    'active' => $isactive,
                 ]
             );
 
@@ -144,9 +140,7 @@ class UserController extends Controller
                 $userrole->fk_user_id = $userid;
                 $userrole->save();
             }
-
             DB::commit();
-
             activity()
                 ->causedBy(Auth::user()->pk_user_id)
                 ->withProperties($LogActivity)
@@ -156,6 +150,7 @@ class UserController extends Controller
 
             return redirect()->route('admin.users.index');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             DB::rollBack();
             toastr('Data Gagal Disimpan', 'error', 'Gagal');
             return back();
@@ -178,9 +173,9 @@ class UserController extends Controller
 
         $headertag = 'Pengguna';
         $headername = 'Lihat Pengguna';
-        $headerlink = '';
+        $headerlink = route('admin.users.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = route('admin.users.index');
 
         $headerparam = [
             'headertag' => $headertag,
@@ -196,10 +191,9 @@ class UserController extends Controller
         $datagroupmenu = GroupMenuModel::where('active', 1)
             ->orderBy('name')
             ->get();
-        $datauser = DB::table('tuser2')
-            ->join('temployee', 'temployee.pk_employee_id', '=', 'tuser2.fk_employee_id')
-            ->select(['pk_user_id', 'tuser2.full_name', 'active', 'temployee.employee_no', 'fk_employee_id'])
-            ->get()[0];
+        $datauser = DB::table('thseuser')
+            ->select(['pk_user_id', 'name', 'active', 'employee_no'])
+            ->first();
 
         $datauserrole = DB::table('mpuser2role')
             ->where('fk_user_id', $userid)
@@ -246,11 +240,10 @@ class UserController extends Controller
         $datagroupmenu = GroupMenuModel::where('active', 1)
             ->orderBy('name')
             ->get();
-        $datauser = DB::table('tuser2')
-            ->join('temployee', 'temployee.pk_employee_id', '=', 'tuser2.fk_employee_id')
-            ->select(['pk_user_id', 'tuser2.full_name', 'active', 'temployee.employee_no', 'fk_employee_id', 'fk_module_id'])
+        $datauser = DB::table('thseuser')
+            ->select(['pk_user_id', 'name', 'employee_no', 'active', 'fk_module_id'])
             ->where('pk_user_id', $userid)
-            ->get()[0];
+            ->first();
 
         $datauserrole = DB::table('mpuser2role')
             ->where('fk_user_id', $userid)
@@ -283,15 +276,12 @@ class UserController extends Controller
             return redirect()->back();
         }
         $request->validate([
-            'emp_id' => ['required', 'integer'],
             'emp_no' => ['required', 'string'],
             'groupdata' => ['required', 'string'],
             'default_page' => ['required'],
             'roledata' => ['required', 'string'],
             'password' => 'confirmed|max:20',
         ], [
-            'emp_id.required' => 'Karyawan harus diisi dengan benar',
-            'emp_id.integer' => 'Karyawan harus diisi dengan benar',
             'emp_no.required' => 'NIK Karyawan harus diisi dengan benar',
             'default_page.required' => 'Halaman Utama harus diisi dengan benar',
             'emp_no.string' => 'NIK Karyawan harus diisi dengan benar',
@@ -304,17 +294,19 @@ class UserController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
             $LogActivity = [];
             $user = UserModel::find($userid);
             if ($request->password != null) {
                 $user->password = bcrypt($request->password);
             }
-            $user->username = $request->emp_no;
+            $user->employee_no = $request->emp_no;
+            $user->name = $request->emp_name;
             $user->active = $request->status;
             $user->fk_module_id = decryptForNumber($request->default_page);
             $user->save();
 
-            $LogActivity['NEW']['USER'] = UserModel::where('pk_user_id', $userid)->select('pk_user_id', 'username')->get();
+            $LogActivity['NEW']['USER'] = UserModel::where('pk_user_id', $userid)->select('pk_user_id', 'name')->first();
 
             $listidusergroupmenu = [];
 
@@ -434,11 +426,12 @@ class UserController extends Controller
             return redirect()->back();
         }
         try {
-
-            DB::update('update tuser2 set active = ? where pk_user_id = ?', [$request->status == 'true' ? 1 : 0, $userid]);
-
+            DB::beginTransaction();
+            DB::update('update thseuser set active = ? where pk_user_id = ?', [$request->status == 'true' ? 1 : 0, $userid]);
+            DB::commit();
             return response(['status' => 'success', 'message' => 'Status Berhasil Diupdate!']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response(['status' => 'error', 'message' => 'Update Status Gagal Silahkan hub Administrator!']);
         }
 
@@ -455,9 +448,13 @@ class UserController extends Controller
     public function datatables(Request $request)
     {
         // <<<<<<<<<<<<<< START untuk pembentukan data table >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        $columns = ['full_name', 'last_login', 'active'];
+        $columns = [
+            'name',
+            'login_last',
+            'active'
+        ];
         $columnkey = 'pk_user_id';
-        $table = 'tuser2';
+        $table = 'thseuser';
         $order = [$columns[0], 'asc'];
 
         $selectColumn = $columns;
@@ -466,39 +463,21 @@ class UserController extends Controller
             $order = [$columns[$request['order']['0']['column']], $request['order']['0']['dir']];
         }
 
-        if ($request['length'] != 1) {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($columns, $request) {
-                    foreach ($columns as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->orderBy($order[0], $order[1])
-                ->skip($request['start'])
-                ->take($request['length'])
-                ->get();
-        } else {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($columns, $request) {
-                    foreach ($columns as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->orderBy($order[0], $order[1])
-                ->get();
-        }
-
-        $filteredrecordcount = DB::table($table)
-            ->select($columns)
-            ->orWhere(function ($query) use ($columns, $request) {
+        $queryBuilder = DB::table($table)
+            ->select($selectColumn);
+        $alldata = (clone $queryBuilder)->count();
+        if(!empty($request['search']['value'])){
+            $queryBuilder->where(function ($query) use ($columns, $request) {
                 foreach ($columns as $column) {
                     $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
                 };
-            })
-            ->orderBy($order[0], $order[1])
-            ->count();
+            });
+        }
+        $filteredrecordcount = (clone $queryBuilder)->count();
+        $datas = $queryBuilder->orderBy($order[0], $order[1])
+            ->skip($request['start'])
+            ->take($request['length'])
+            ->get();
 
         $dataresult = [];
         foreach ($datas as $data) {
@@ -522,8 +501,6 @@ class UserController extends Controller
             $dataresult[] = $subdata;
         }
 
-        //ambil total data
-        $alldata = DB::table($table)->count();
         $output = array(
             "draw" => intval($request["draw"]),
             "recordsTotal" => $alldata,
