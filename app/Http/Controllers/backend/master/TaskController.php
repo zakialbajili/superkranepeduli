@@ -24,9 +24,9 @@ class TaskController extends Controller
     {
         $headertag = 'Task Data';
         $headername = 'Daftar Task';
-        $headerlink = '';
+        $headerlink = '#';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = '#';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -44,7 +44,7 @@ class TaskController extends Controller
         // $rawStatus = DB::table('tprojectmaster')
         //     ->whereIn('pk_projectmaster_id', $authorizeStatus)
         //     ->get();
-$rawStatus="";
+        $rawStatus="";
         $rawCosttype = DB::table('tprojectmaster')
             ->select('pk_projectmaster_id', 'name')
             ->orderBy('name', 'asc')

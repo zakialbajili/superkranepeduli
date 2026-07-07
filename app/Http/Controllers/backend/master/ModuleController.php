@@ -24,9 +24,9 @@ class ModuleController extends Controller
     {
         $headertag = 'Module';
         $headername = 'Daftar Module';
-        $headerlink = '';
+        $headerlink = 'x';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = 'x';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -46,9 +46,9 @@ class ModuleController extends Controller
     {
         $headertag = 'Module';
         $headername = 'Tambah Module';
-        $headerlink = '';
+        $headerlink = route('admin.modules.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = route('admin.modules.index');
 
         $headerparam = [
             'headertag' => $headertag,

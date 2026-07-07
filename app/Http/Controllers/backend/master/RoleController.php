@@ -22,9 +22,9 @@ class RoleController extends Controller
     {
         $headertag = 'Role';
         $headername = 'Daftar Role';
-        $headerlink = '';
+        $headerlink = '#';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = '#';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -44,9 +44,9 @@ class RoleController extends Controller
     {
         $headertag = 'Role';
         $headername = 'Tambah Role';
-        $headerlink = '';
+        $headerlink = Route('admin.roles.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = Route('admin.roles.index');
 
         $headerparam = [
             'headertag' => $headertag,
@@ -72,19 +72,24 @@ class RoleController extends Controller
         try {
             $dataform = $request->data['dataform'][0];
             DB::beginTransaction();
-            $fullName = Auth::user()->full_name;
+            $fullName = Auth::user()->name;
             $rolename = $dataform['rolename'];
             $roledesc = $dataform['roledesc'];
 
-            $activitycontent = [];
-            $activitycontent['NEW']['Role Header'] = [
+            $LogActivity = [];
+            $LogActivity['NEW']['Role Header'] = [
                 "name" => $rolename,
                 "description" => $roledesc,
                 "created_date" => now(),
                 "created_by" => $fullName,
             ];
             $roleid = DB::table('trole2')
-                ->insertGetId($activitycontent['NEW']['Role Header']);
+                ->insertGetId($LogActivity['NEW']['Role Header']);
+
+            activity()
+                ->causedBy(Auth::user()->pk_user_id)
+                ->withProperties($LogActivity)
+                ->log('Add - ' . Route::currentRouteName());
             DB::commit();
             return response([
                 'status' => 'success',
@@ -122,7 +127,7 @@ class RoleController extends Controller
 
         $headertag = 'Role';
         $headername = 'Edit Role';
-        $headerlink = '';
+        $headerlink = Route('admin.roles.index');
         $parentname = 'Halaman Utama';
         $parentlink = Route('admin.roles.index');
 
@@ -140,7 +145,7 @@ class RoleController extends Controller
 
 
         $routeName = Route::currentRouteName();
-        $rawpengguna = DB::select("SELECT tuser2.full_name FROM mpuser2role INNER JOIN tuser2 ON tuser2.pk_user_id = mpuser2role.fk_user_id WHERE mpuser2role.fk_role_id = ?", [$pk_role_id]);
+        $rawpengguna = DB::select("SELECT thseuser.name AS full_name FROM mpuser2role INNER JOIN thseuser ON thseuser.pk_user_id = mpuser2role.fk_user_id WHERE mpuser2role.fk_role_id = ?", [$pk_role_id]);
         $pengguna = '';
         if (count($rawpengguna) > 0) {
             foreach ($rawpengguna as $userdata) {
@@ -178,11 +183,11 @@ class RoleController extends Controller
         try {
             $dataform = $request->data['dataform'][0];
             DB::beginTransaction();
-            $fullName = Auth::user()->full_name;
+            $fullName = Auth::user()->name;
             $rolename = $dataform['rolename'];
             $roledesc = $dataform['roledesc'];
-            $activitycontent = [];
-            $activitycontent['NEW']['Role Header'] = [
+            $LogActivity = [];
+            $LogActivity['NEW']['Role Header'] = [
                 "name" => $rolename,
                 "description" => $roledesc,
                 "updated_date" => now(),
@@ -190,7 +195,11 @@ class RoleController extends Controller
             ];
             DB::table('trole2')
                 ->where('pk_role_id', $roleid)
-                ->update($activitycontent['NEW']['Role Header']);
+                ->update($LogActivity['NEW']['Role Header']);
+            activity()
+                ->causedBy(Auth::user()->pk_user_id)
+                ->withProperties($LogActivity)
+                ->log('Update - ' . Route::currentRouteName());
             DB::commit();
             return response([
                 'status' => 'success',
@@ -220,13 +229,24 @@ class RoleController extends Controller
 
         try {
             DB::beginTransaction();
+            $detailRole = DB::table('trole2')->where('pk_role_id', $roleid)->first();
+
+            // Hapus relasi user-role terlebih dahulu
+            DB::delete('delete from mpuser2role where fk_role_id = ?', [$roleid]);
             DB::delete('delete from trole2 where pk_role_id = ?', [$roleid]);
+            $LogActivity = [];
+            $LogActivity['Delete'] = $detailRole;
+
+            activity()
+                ->causedBy(Auth::user()->pk_user_id)
+                ->withProperties($LogActivity)
+                ->log('Delete - ' . Route::currentRouteName());
             DB::commit();
             return response(['status' => 'success', 'Data berhasil dihapus!']);
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response(['status' => 'error', 'Silahkan hubungi Administrator!']);
+            return response(['status' => 'error', 'Silahkan hubungi Administrator.']);
         }
     }
 }
