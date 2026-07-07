@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\backend\aol\webhook;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +26,7 @@ Route::post('login-page', [AuthController::class, 'customLogin'])->name('login.c
 Route::get('login', [AuthController::class, 'index'])->name('login')->middleware("throttle:8,2");
 Route::get('login/admin', [AuthController::class, 'AdminLogin'])->name('loginAdmin')->middleware("throttle:8,2");
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
