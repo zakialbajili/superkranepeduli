@@ -8,7 +8,7 @@
 /vendor
 /app/configs/*.json
 /config/app.php
-CLAUDE.md
+**/CLAUDE.md
 .env
 .env.backup
 .env.production

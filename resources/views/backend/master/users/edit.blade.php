@@ -40,10 +40,6 @@
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control rounded-0" id="emp_no"
                                                     name="emp_no" value="{{ $datauser->employee_no }}">
-                                                <!-- <span class="input-group-append">
-                                                    <button type="button" id="emp_search" name="emp_search"
-                                                        class="btn btn-info btn-flat">Cari</button>
-                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
@@ -212,38 +208,6 @@
             <!-- /.row -->
         </div>
         <!-- /.container-fluid -->
-
-        <!-- /.modal -->
-        <!-- <div class="modal fade" id="modal-data" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Daftar Karyawan</h4>
-                        <button type="button" class="close" onclick=" $('#modal-data').modal('hide');"
-                            aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <table id="dataTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>No Karyawan</th>
-                                    <th>Nama</th>
-                                    <th>Posisi</th>
-                                    <th>Divisi</th>
-                                    <th>Tindakan</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default"
-                            onclick=" $('#modal-data').modal('hide');">Close</button>
-                    </div>
-                </div> 
-            </div>
-        </div> -->
     </section>
     <!-- Main content -->
 @endsection
@@ -251,37 +215,6 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // var obj_table = $("#dataTable").DataTable({
-            //     "responsive": true,
-            //     "lengthChange": false,
-            //     "processing": true,
-            //     "serverSide": true,
-            //     "autoWidth": false,
-            //     "ajax": {
-            //         url: "{!! route('admin.users.employeedatatables') !!}",
-            //         type: "POST",
-            //         data: {
-            //             "_token": "{{ csrf_token() }}",
-            //         }
-            //     },
-            //     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            // });
-
-            $('#emp_search').click(function(e) {
-                e.preventDefault();
-                $('#modal-data').modal('show');
-            });
-
-            /*$('#dataTable tbody').on('click', '.selected-item', function() {
-                var row = $(this).closest('tr');
-                var data = obj_table.row(row).data();
-                var id = $(this).attr("data-id");
-                $('#emp_id').val(id);
-                $('#emp_no').val(data[0]);
-                $('#emp_name').val(data[1]);
-
-                $('#modal-data').modal('hide');
-            });*/
 
             $("#addgroup").click(function(e) {
                 e.preventDefault();

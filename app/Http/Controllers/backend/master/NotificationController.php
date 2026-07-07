@@ -23,9 +23,9 @@ class NotificationController extends Controller
     {
         $headertag = 'Data Notifikasi';
         $headername = 'Daftar Notifikasi';
-        $headerlink = '';
+        $headerlink = '#';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = '#';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -89,10 +89,7 @@ class NotificationController extends Controller
     public function unreaddatatables(Request $request)
     {
         // <<<<<<<<<<<<<< START untuk pembentukan data table >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        $datafilter = [
-            "transactiondate" => "",
-            "status" => "",
-        ];
+        $datafilter = [];
         if (isset($request['data'][0])) {
             $datafilter = $request['data'][0];
         }
@@ -108,78 +105,39 @@ class NotificationController extends Controller
         $selectColumn = $columns;
         $selectColumn[] = 'pk_notification_id';
         $searchColumn = $selectColumn;
-
+        
         if (isset($request["order"])) {
             $order = [$columns[$request['order']['0']['column']], $request['order']['0']['dir']];
-        }
-
-        if ($request['length'] != 1) {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($searchColumn, $request) {
-                    foreach ($searchColumn as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->where(function ($query) use ($datafilter) {
-                    if ($datafilter["transactiondate"] != "") {
-                        $datadate = explode(' - ', $datafilter["transactiondate"]);
-                        if (count($datadate) > 0) {
-                            $query->Where('created_date', ">=", $datadate[0]);
-                            $query->Where('created_date', "<=", $datadate[1]);
-                        }
-                    }
-                })
-                ->where('is_read', 0)
-                ->where('fk_user_id', Auth::user()->pk_user_id)
-                ->orderBy($order[0], $order[1])
-                ->skip($request['start'])
-                ->take($request['length'])
-                ->get();
-        } else {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($searchColumn, $request) {
-                    foreach ($searchColumn as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->where(function ($query) use ($datafilter) {
-                    if ($datafilter["transactiondate"] != "") {
-                        $datadate = explode(' - ', $datafilter["transactiondate"]);
-                        if (count($datadate) > 0) {
-                            $query->Where('created_date', ">=", $datadate[0]);
-                            $query->Where('created_date', "<=", $datadate[1]);
-                        }
-                    }
-                })
-                ->where('is_read', 0)
-                ->where('fk_user_id', Auth::user()->pk_user_id)
-                ->orderBy($order[0], $order[1])
-                ->get();
-        }
-
-        $filteredrecordcount = DB::table($table)
-            ->select($columns)
-            ->orWhere(function ($query) use ($searchColumn, $request) {
+            }
+            
+        $queryBuilder = DB::table($table)
+            ->select($selectColumn)
+            ->where('is_read', 0)
+            ->where('fk_user_id', Auth::user()->pk_user_id);
+        $alldata = (clone $queryBuilder)->count();
+        if (!empty($request['search']['value'])){
+            $queryBuilder->where(function ($query) use ($searchColumn, $request) {
                 foreach ($searchColumn as $column) {
                     $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
                 };
-            })
-            ->where(function ($query) use ($datafilter) {
-                if ($datafilter["transactiondate"] != "") {
+            });
+        }
+        if (!empty($datafilter)){
+            $queryBuilder->where(function ($query) use ($datafilter) {
+                if (!empty($datafilter["transactiondate"])) {
                     $datadate = explode(' - ', $datafilter["transactiondate"]);
                     if (count($datadate) > 0) {
                         $query->Where('created_date', ">=", $datadate[0]);
                         $query->Where('created_date', "<=", $datadate[1]);
                     }
                 }
-            })
-            ->where('is_read', 0)
-            ->where('fk_user_id', Auth::user()->pk_user_id)
-            ->orderBy($order[0], $order[1])
-            ->count();
-
+            });
+        }
+        $filteredrecordcount = (clone $queryBuilder)->count();
+        $datas = $queryBuilder->orderBy($order[0], $order[1])
+            ->skip($request['start'])
+            ->take($request['length'])
+            ->get();
         $dataresult = [];
         foreach ($datas as $data) {
             //ubah dibagian ini untuk membuat raw html
@@ -190,15 +148,6 @@ class NotificationController extends Controller
                 switch ($column) {
                     case 'employee_no':
                         $subdata[] = $data->employee_no . ' ' . $data->full_name . ' ' . $data->employee_position;
-                        break;
-                    case 'submission_total':
-                        $subdata[] = numberDelimited($data->submission_total);
-                        break;
-                    case 'reported_total':
-                        $subdata[] = numberDelimited($data->reported_total);
-                        break;
-                    case 'remaining_total':
-                        $subdata[] = numberDelimited($data->remaining_total);
                         break;
                     default:
                         $subdata[] = $data->$column;
@@ -211,18 +160,6 @@ class NotificationController extends Controller
         }
 
         //ambil total data
-        $alldata = DB::table($table)
-            ->where(function ($query) use ($datafilter) {
-                if ($datafilter["transactiondate"] != "") {
-                    $datadate = explode(' - ', $datafilter["transactiondate"]);
-                    if (count($datadate) > 0) {
-                        $query->Where('created_date', ">=", $datadate[0]);
-                        $query->Where('created_date', "<=", $datadate[1]);
-                    }
-                }
-            })
-            ->where('is_read', 0)
-            ->where('fk_user_id', Auth::user()->pk_user_id)->count();
         $output = array(
             "draw" => intval($request["draw"]),
             "recordsTotal" => $alldata,
@@ -236,11 +173,7 @@ class NotificationController extends Controller
 
     public function readdatatables(Request $request)
     {
-        // <<<<<<<<<<<<<< START untuk pembentukan data table >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        $datafilter = [
-            "transactiondate" => "",
-            "status" => "",
-        ];
+        $datafilter = [];
         if (isset($request['data'][0])) {
             $datafilter = $request['data'][0];
         }
@@ -261,76 +194,37 @@ class NotificationController extends Controller
             $order = [$columns[$request['order']['0']['column']], $request['order']['0']['dir']];
         }
 
-        if ($request['length'] != 1) {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($searchColumn, $request) {
-                    foreach ($searchColumn as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->where(function ($query) use ($datafilter) {
-                    if ($datafilter["transactiondate"] != "") {
-                        $datadate = explode(' - ', $datafilter["transactiondate"]);
-                        if (count($datadate) > 0) {
-                            $query->Where('created_date', ">=", $datadate[0]);
-                            $query->Where('created_date', "<=", $datadate[1]);
-                        }
-                    }
-                })
-                ->where('is_read', 1)
-                ->where('fk_user_id', Auth::user()->pk_user_id)
-                ->orderBy($order[0], $order[1])
-                ->skip($request['start'])
-                ->take($request['length'])
-                ->get();
-        } else {
-            $datas = DB::table($table)
-                ->select($selectColumn)
-                ->orWhere(function ($query) use ($searchColumn, $request) {
-                    foreach ($searchColumn as $column) {
-                        $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
-                    };
-                })
-                ->where(function ($query) use ($datafilter) {
-                    if ($datafilter["transactiondate"] != "") {
-                        $datadate = explode(' - ', $datafilter["transactiondate"]);
-                        if (count($datadate) > 0) {
-                            $query->Where('created_date', ">=", $datadate[0]);
-                            $query->Where('created_date', "<=", $datadate[1]);
-                        }
-                    }
-                })
-                ->where('is_read', 1)
-                ->where('fk_user_id', Auth::user()->pk_user_id)
-                ->orderBy($order[0], $order[1])
-                ->get();
-        }
-
-        $filteredrecordcount = DB::table($table)
-            ->select($columns)
-            ->orWhere(function ($query) use ($searchColumn, $request) {
+        $queryBuilder = DB::table($table)
+            ->select($selectColumn)
+            ->where('is_read', 1)
+            ->where('fk_user_id', Auth::user()->pk_user_id);
+        $alldata = (clone $queryBuilder)->count();
+        if (!empty($request['search']['value'])){
+            $queryBuilder->where(function ($query) use ($searchColumn, $request) {
                 foreach ($searchColumn as $column) {
                     $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
                 };
-            })
-            ->where(function ($query) use ($datafilter) {
-                if ($datafilter["transactiondate"] != "") {
+            });
+        }
+        if (!empty($datafilter)){
+            $queryBuilder->where(function ($query) use ($datafilter) {
+                if (!empty($datafilter["transactiondate"])) {
                     $datadate = explode(' - ', $datafilter["transactiondate"]);
                     if (count($datadate) > 0) {
                         $query->Where('created_date', ">=", $datadate[0]);
                         $query->Where('created_date', "<=", $datadate[1]);
                     }
                 }
-            })
-            ->where('is_read', 1)
-            ->where('fk_user_id', Auth::user()->pk_user_id)
-            ->orderBy($order[0], $order[1])
-            ->count();
+            });
+        }
+        $filteredrecordcount = (clone $queryBuilder)->count();
+        $datas = $queryBuilder->orderBy($order[0], $order[1])
+            ->skip($request['start'])
+            ->take($request['length'])
+            ->get();
 
         $dataresult = [];
         foreach ($datas as $data) {
-            //ubah dibagian ini untuk membuat raw html
             $id = encrypt($data->$columnkey);
             $subdata = [];
 
@@ -338,15 +232,6 @@ class NotificationController extends Controller
                 switch ($column) {
                     case 'employee_no':
                         $subdata[] = $data->employee_no . ' ' . $data->full_name . ' ' . $data->employee_position;
-                        break;
-                    case 'submission_total':
-                        $subdata[] = numberDelimited($data->submission_total);
-                        break;
-                    case 'reported_total':
-                        $subdata[] = numberDelimited($data->reported_total);
-                        break;
-                    case 'remaining_total':
-                        $subdata[] = numberDelimited($data->remaining_total);
                         break;
                     default:
                         $subdata[] = $data->$column;
@@ -358,26 +243,12 @@ class NotificationController extends Controller
             $dataresult[] = $subdata;
         }
 
-        //ambil total data
-        $alldata = DB::table($table)
-            ->where(function ($query) use ($datafilter) {
-                if ($datafilter["transactiondate"] != "") {
-                    $datadate = explode(' - ', $datafilter["transactiondate"]);
-                    if (count($datadate) > 0) {
-                        $query->Where('created_date', ">=", $datadate[0]);
-                        $query->Where('created_date', "<=", $datadate[1]);
-                    }
-                }
-            })
-            ->where('is_read', 1)
-            ->where('fk_user_id', Auth::user()->pk_user_id)->count();
         $output = array(
             "draw" => intval($request["draw"]),
             "recordsTotal" => $alldata,
             "recordsFiltered" => $filteredrecordcount,
             "data" => $dataresult
         );
-        // <<<<<<<<<<<<<< END untuk pembentukan data table >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         return response()->json($output, 200);
     }
