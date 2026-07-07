@@ -15,7 +15,7 @@
             border: none;
         }
     </style>
-    <!-- <section class="content-header">
+    <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
@@ -29,10 +29,10 @@
                     </ol>
                 </div>
             </div>
-        </div>
-    </section> -->
+        </div><!-- /.container-fluid -->
+    </section>
 
-    <!-- <section class="content">
+    <section class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3">
@@ -49,12 +49,19 @@
                                     <div class="input-group mb-3">
                                         <select id="status" name="status" class="form-control custom-select">
                                             <option value="">Silahkan Pilih Status</option>
+                                            {{-- @foreach ($rawStatus as $itemStatus)
+                                                <option value="{{ encryptId($itemStatus->pk_projectmaster_id) }}">
+                                                    {{ $itemStatus->name }}</option>
+                                            @endforeach --}}
                                         </select>
                                     </div>
                                 </div>
                                 <button type="button" id="filter-data" class="btn btn-sm btn-success ml-2"><i
                                         class="fas fa-search"></i>
                                     Filter</button>
+                                {{-- <button type="button" id="excel-data" class="btn btn-sm btn-danger ml-2"><i
+                                        class="fas fa-file-excel"></i>
+                                    Export</button> --}}
                             </form>
                         </div>
                     </div>
@@ -66,6 +73,7 @@
                                 <h3 class="card-title">Task Data</h3>
                             </div>
                         </div>
+                        <!-- /.card-header -->
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table id="dataTable" class="table table-striped display" style="width: 100%">
@@ -81,11 +89,16 @@
                                 </table>
                             </div>
                         </div>
+                        <!-- /.card-body -->
                     </div>
+                    <!-- /.card -->
                 </div>
+                <!-- /.col -->
             </div>
+            <!-- /.row -->
         </div>
-    </section> -->
+        <!-- /.container-fluid -->
+    </section>
 @endsection
 @push('scripts')
     @include('js.task.index')

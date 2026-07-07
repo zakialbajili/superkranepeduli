@@ -21,9 +21,9 @@ class GroupMenuModuleController extends Controller
     {
         $headertag = 'Group Menu';
         $headername = 'Daftar Group Menu';
-        $headerlink = '';
+        $headerlink = '#';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = '#';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -43,9 +43,9 @@ class GroupMenuModuleController extends Controller
     {
         $headertag = 'Group Menu';
         $headername = 'Daftar Group Menu';
-        $headerlink = '';
+        $headerlink = route('admin.groupmenumodules.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = route('admin.groupmenumodules.index');
         $headerparam = [
             'headertag' => $headertag,
             'headername' => $headername,
@@ -272,12 +272,12 @@ class GroupMenuModuleController extends Controller
 
         }
 
-        $rawpengguna = DB::select("SELECT tuser2.full_name FROM mpuser2groupmenu INNER JOIN tuser2 ON tuser2.pk_user_id=mpuser2groupmenu.fk_user_id WHERE mpuser2groupmenu.fk_groupmenu_id=?", [$groupid]);
+        $rawpengguna = DB::select("SELECT thseuser.name FROM mpuser2groupmenu INNER JOIN thseuser ON thseuser.pk_user_id=mpuser2groupmenu.fk_user_id WHERE mpuser2groupmenu.fk_groupmenu_id=?", [$groupid]);
         $pengguna = '';
         if (count($rawpengguna) > 0) {
             foreach ($rawpengguna as $userdata) {
                 $pengguna .= '<tr>
-                    <td>' . $userdata->full_name . '</td>
+                    <td>' . $userdata->name . '</td>
                 </tr>'; # code...
             }
         }

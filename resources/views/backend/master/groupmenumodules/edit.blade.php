@@ -113,7 +113,7 @@
                     </div>
                     <!-- /.card-footer -->
                     <div class="card-footer">
-                        <button id="cancel" class="btn btn-default">Cancel</button>
+                        <a href="{{ route('admin.groupmenumodules.index') }}" class="btn btn-default">Cancel</a>
                         <button id="save" class="btn btn-info float-right">Submit</button>
                     </div>
                     <!-- /.card-footer -->
