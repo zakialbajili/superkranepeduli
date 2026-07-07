@@ -26,7 +26,6 @@ Route::get('selectNotification/{id}', [UtilityController::class, 'selectNotifica
 
 // USER
 Route::post('users/datatables', [UserController::class, 'datatables'])->name('users.datatables');
-Route::post('users/karyawandatatables', [UserController::class, 'Karyawandatatables'])->name('users.employeedatatables');
 Route::put('users/change-status', [UserController::class, 'changestatus'])->name('users.change-status');
 Route::post('users/add-role', [UserController::class, 'addrole'])->name('users.add-role');
 Route::post('users/storeToken', [UserController::class, 'storeToken'])->name('storeToken');
