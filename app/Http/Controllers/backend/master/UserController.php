@@ -26,9 +26,9 @@ class UserController extends Controller
     {
         $headertag = 'Pengguna';
         $headername = 'Daftar Pengguna';
-        $headerlink = '';
+        $headerlink = '#';
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = '#';
 
         $headerparam = [
             'headertag' => $headertag,
@@ -48,9 +48,9 @@ class UserController extends Controller
     {
         $headertag = 'Pengguna';
         $headername = 'Tambah Pengguna';
-        $headerlink = '';
+        $headerlink = route('admin.users.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = route('admin.users.index');
 
         $headerparam = [
             'headertag' => $headertag,
@@ -81,7 +81,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'emp_no' => ['required', 'string'],
             'groupdata' => ['required', 'string'],
@@ -108,7 +107,7 @@ class UserController extends Controller
                 'username' => $request->emp_no,
                 'fk_module_id' => decryptForNumber($request->default_page),
             ];
-            $isactive =  boolval($request->status);
+            $isactive = boolval($request->status);
             $userid = DB::table('thseuser')->insertGetId(
                 [
                     'name' => $request->emp_name,
@@ -150,7 +149,6 @@ class UserController extends Controller
 
             return redirect()->route('admin.users.index');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             DB::rollBack();
             toastr('Data Gagal Disimpan', 'error', 'Gagal');
             return back();
@@ -222,9 +220,9 @@ class UserController extends Controller
 
         $headertag = 'Pengguna';
         $headername = 'Edit Pengguna';
-        $headerlink = '';
+        $headerlink = route('admin.users.index');
         $parentname = 'Halaman Utama';
-        $parentlink = '';
+        $parentlink = route('admin.users.index');
 
         $headerparam = [
             'headertag' => $headertag,
@@ -400,21 +398,28 @@ class UserController extends Controller
         //     return response(['status' => 'error', 'message' => 'This items contain, sub items for delete this you have to delete the sub items first!']);
         // }
         // $category->delete();
-        $LogActivity = [];
-        $LogActivity['OLD']['User'] = UserModel::where('pk_user_id', $userid)->select('pk_user_id', 'username')->get();
-        $LogActivity['OLD']['Role'] = UserRoleModel::where('fk_user_id', $userid)->get();
-        $LogActivity['OLD']['Group Menu'] = UserGroupMenuModel::where('fk_user_id', $userid)->get();
+        try {
+            $LogActivity = [];
+            DB::beginTransaction();
+            $LogActivity['OLD']['User'] = UserModel::where('pk_user_id', $userid)->select('pk_user_id', 'name')->get();
+            $LogActivity['OLD']['Role'] = UserRoleModel::where('fk_user_id', $userid)->get();
+            $LogActivity['OLD']['Group Menu'] = UserGroupMenuModel::where('fk_user_id', $userid)->get();
 
-        DB::delete('delete from mpuser2role where fk_user_id = ?', [$userid]);
-        DB::delete('delete from mpuser2groupmenu where fk_user_id = ?', [$userid]);
-        DB::delete('delete from tuser2 where pk_user_id = ?', [$userid]);
+            DB::delete('delete from mpuser2role where fk_user_id = ?', [$userid]);
+            DB::delete('delete from mpuser2groupmenu where fk_user_id = ?', [$userid]);
+            DB::delete('delete from thseuser where pk_user_id = ?', [$userid]);
 
-        activity()
-            ->causedBy(Auth::user()->pk_user_id)
-            ->withProperties($LogActivity)
-            ->log('Delete - ' . Route::currentRouteName());
+            activity()
+                ->causedBy(Auth::user()->pk_user_id)
+                ->withProperties($LogActivity)
+                ->log('Delete - ' . Route::currentRouteName());
+            DB::commit();
 
-        return response(['status' => 'success', 'Data Berhasil Dihapus!']);
+            return response(['status' => 'success', 'Data Berhasil Dihapus!']);
+        } catch (\Throwable $th) {
+            toastr('Data Gagal Dihapus', 'error', 'Gagal');
+            return redirect()->back();
+        }
     }
     public function changestatus(Request $request)
     {
@@ -466,7 +471,7 @@ class UserController extends Controller
         $queryBuilder = DB::table($table)
             ->select($selectColumn);
         $alldata = (clone $queryBuilder)->count();
-        if(!empty($request['search']['value'])){
+        if (!empty($request['search']['value'])) {
             $queryBuilder->where(function ($query) use ($columns, $request) {
                 foreach ($columns as $column) {
                     $query->orWhere($column, 'like', "%" . $request['search']['value'] . "%");
