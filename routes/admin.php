@@ -4,6 +4,7 @@ use App\Http\Controllers\backend\master\GroupMenuModuleController;
 use App\Http\Controllers\backend\master\MenuController;
 use App\Http\Controllers\backend\master\ModuleController;
 use App\Http\Controllers\backend\master\NotificationController;
+use App\Http\Controllers\backend\admin\ReportsAdminController;
 use App\Http\Controllers\backend\master\RoleController;
 use App\Http\Controllers\backend\master\TaskController;
 use App\Http\Controllers\backend\master\UserController;
@@ -54,5 +55,9 @@ Route::resource('task', TaskController::class);
 Route::post('notification/readdatatables', [NotificationController::class, 'readdatatables'])->name('notification.readdatatables');
 Route::post('notification/unreaddatatables', [NotificationController::class, 'unreaddatatables'])->name('notification.unreaddatatables');
 Route::resource('notification', NotificationController::class);
+
+//Reports
+Route::post('reports/datatable', [ReportsAdminController::class, 'datatable'])->name('reports.datatable');
+Route::resource('reports', ReportsAdminController::class);
 
 
