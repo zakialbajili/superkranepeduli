@@ -13,22 +13,29 @@ class HsePelaporanBahayaSeeder extends Seeder
      * Foreign key references (thsedata_master):
      *   shift          : 1 = Pagi, 2 = Malam
      *   kategori_bahaya: 3 = Kondisi Tidak Aman, 4 = Tindakan Tidak Aman
+     *   desc_kategori_bahaya: 10-19 = Jenis Kondisi Tidak Aman (detail)
+     *                        20-35 = Jenis Tindakan Tidak Aman (detail)
      *   status_pelaporan: 5 = Open, 6 = On Progress, 7 = Closed
      *   data_pelaporan  : 8 = Inspection, 9 = Hazard report
+     *   lokasi_bahaya  : 36-48 = Lokasi (master data)
+     *   dept_penanggungjwb: 49-56 = Departemen (master data)
      */
     public function run(): void
     {
         $data = [
             [
                 'tgl_pelaporan'      => '2026-07-01',
-                'lokasi_bahaya'      => 'Area Workshop A',
+                'lokasi_bahaya'      => 46, // Pool 2-Workshop
                 'shift'              => 1,
                 'data_pelaporan'     => 8,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Terdapat tumpahan oli di lantai area mesin bubut',
+                'desc_kategori_bahaya' => 19, // Jalan Licin dan Bergelombang
+                'full_name'          => 'Budi Santoso',
+                'employee_no'        => '002809',
+                'posisi'             => 'Operator',
                 'desc_temuan_bahaya' => 'Karyawan berpotensi terpeleset saat melintasi area tersebut',
                 'rekomendasi_perbaikan' => 'Segera membersihkan tumpahan oli dan memasang rambu peringatan',
-                'dept_penanggungjwb' => 'Maintenance',
+                'dept_penanggungjwb' => 50, // Maintenance
                 'nama_pengawas'      => 'Budi Santoso',
                 'due_date'           => '2026-07-03',
                 'status_pelaporan'   => 7,
@@ -39,14 +46,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-01',
-                'lokasi_bahaya'      => 'Area Stock Yard',
+                'lokasi_bahaya'      => 45, // Pool 2-Yard
                 'shift'              => 2,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 4,
-                'desc_kategori_bahaya' => 'Operator crane tidak menggunakan sabuk pengaman saat mengoperasikan crane',
+                'desc_kategori_bahaya' => 21, // Tidak Menggunakan Body Harness
+                'full_name'          => 'Agus Wijaya',
+                'employee_no'        => '001005',
+                'posisi'             => 'HSE Officer',
                 'desc_temuan_bahaya' => 'Melanggar prosedur K3 dan berisiko jatuh dari ketinggian',
                 'rekomendasi_perbaikan' => 'Memberikan peringatan tertulis dan mewajibkan penggunaan safety harness',
-                'dept_penanggungjwb' => 'HSE',
+                'dept_penanggungjwb' => 53, // HSE
                 'nama_pengawas'      => 'Agus Wijaya',
                 'due_date'           => '2026-07-02',
                 'status_pelaporan'   => 7,
@@ -57,14 +67,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-03',
-                'lokasi_bahaya'      => 'Area Office Lt.2',
+                'lokasi_bahaya'      => 36, // UCC Tangguh
                 'shift'              => 1,
                 'data_pelaporan'     => 8,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Kabel stop kontak terkelupas dan terbuka di ruang rapat',
+                'desc_kategori_bahaya' => 17, // Tidak Tersedia Pelindung Keselamatan
+                'full_name'          => 'Dewi Sartika',
+                'employee_no'        => '003012',
+                'posisi'             => 'Staff GA',
                 'desc_temuan_bahaya' => 'Risiko tersengat listrik saat karyawan menyentuh area tersebut',
                 'rekomendasi_perbaikan' => 'Mengganti kabel dan stop kontak, serta melakukan pengecekan instalasi listrik',
-                'dept_penanggungjwb' => 'General Affair',
+                'dept_penanggungjwb' => 56, // GA
                 'nama_pengawas'      => 'Dewi Sartika',
                 'due_date'           => '2026-07-05',
                 'status_pelaporan'   => 6,
@@ -75,14 +88,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-04',
-                'lokasi_bahaya'      => 'Area Workshop B',
+                'lokasi_bahaya'      => 46, // Pool 2-Workshop
                 'shift'              => 1,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Alat pemadam api ringan (APAR) tidak terisi dan melewati masa uji',
+                'desc_kategori_bahaya' => 17, // Tidak Tersedia Pelindung Keselamatan
+                'full_name'          => 'Budi Santoso',
+                'employee_no'        => '002809',
+                'posisi'             => 'HSE Supervisor',
                 'desc_temuan_bahaya' => 'Tidak siap digunakan jika terjadi kebakaran darurat',
                 'rekomendasi_perbaikan' => 'Melakukan pengisian ulang APAR dan menjadwalkan uji kelayakan rutin',
-                'dept_penanggungjwb' => 'HSE',
+                'dept_penanggungjwb' => 53, // HSE
                 'nama_pengawas'      => 'Budi Santoso',
                 'due_date'           => '2026-07-07',
                 'status_pelaporan'   => 6,
@@ -93,14 +109,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-05',
-                'lokasi_bahaya'      => 'Area Parkir Mobile Crane',
+                'lokasi_bahaya'      => 45, // Pool 2-Yard
                 'shift'              => 2,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 4,
-                'desc_kategori_bahaya' => 'Riggers tidak menggunakan helm dan rompi safety saat melakukan bongkar muat',
+                'desc_kategori_bahaya' => 20, // Tidak Menggunakan APD Lengkap
+                'full_name'          => 'Hendra Gunawan',
+                'employee_no'        => '004021',
+                'posisi'             => 'Operator Crane',
                 'desc_temuan_bahaya' => 'Berisiko cedera kepala jika tertimpa material',
                 'rekomendasi_perbaikan' => 'Teguran lisan dan pengawasan ketat penggunaan APD oleh supervisor',
-                'dept_penanggungjwb' => 'Operasional',
+                'dept_penanggungjwb' => 49, // Operasional
                 'nama_pengawas'      => 'Hendra Gunawan',
                 'due_date'           => '2026-07-05',
                 'status_pelaporan'   => 7,
@@ -111,14 +130,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-06',
-                'lokasi_bahaya'      => 'Area Gudang Sparepart',
+                'lokasi_bahaya'      => 48, // Pool 3-Warehouse
                 'shift'              => 1,
                 'data_pelaporan'     => 8,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Rak penyimpanan sparepart miring dan tidak stabil',
+                'desc_kategori_bahaya' => 10, // Ruang Kerja yang Sempit
+                'full_name'          => 'Slamet Riyadi',
+                'employee_no'        => '005017',
+                'posisi'             => 'Warehouse Staff',
                 'desc_temuan_bahaya' => 'Sparepart berat berpotensi jatuh dan melukai karyawan',
                 'rekomendasi_perbaikan' => 'Memperbaiki rak dan memastikan semua baut terpasang dengan benar',
-                'dept_penanggungjwb' => 'Warehouse',
+                'dept_penanggungjwb' => 54, // Warehouse
                 'nama_pengawas'      => 'Slamet Riyadi',
                 'due_date'           => '2026-07-08',
                 'status_pelaporan'   => 5,
@@ -129,14 +151,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-06',
-                'lokasi_bahaya'      => 'Area Fuel Station',
+                'lokasi_bahaya'      => 39, // Neptum
                 'shift'              => 2,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Terdapat ceceran solar di sekitar dispensing area',
+                'desc_kategori_bahaya' => 11, // Lingkungan Kerja yang Kotor (Tidak 5R)
+                'full_name'          => 'Agus Wijaya',
+                'employee_no'        => '001005',
+                'posisi'             => 'HSE Officer',
                 'desc_temuan_bahaya' => 'Area licin dan berisiko kebakaran jika terkena percikan api',
                 'rekomendasi_perbaikan' => 'Membersihkan ceceran solar dan menyediakan spill kit di area fueling',
-                'dept_penanggungjwb' => 'HSE',
+                'dept_penanggungjwb' => 53, // HSE
                 'nama_pengawas'      => 'Agus Wijaya',
                 'due_date'           => '2026-07-07',
                 'status_pelaporan'   => 5,
@@ -147,14 +172,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-07',
-                'lokasi_bahaya'      => 'Area Workshop A',
+                'lokasi_bahaya'      => 46, // Pool 2-Workshop
                 'shift'              => 1,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 4,
-                'desc_kategori_bahaya' => 'Pekerja las tidak menggunakan kacamata pelindung saat mengelas',
+                'desc_kategori_bahaya' => 20, // Tidak Menggunakan APD Lengkap
+                'full_name'          => 'Supriyadi',
+                'employee_no'        => '003012',
+                'posisi'             => 'Teknisi Las',
                 'desc_temuan_bahaya' => 'Paparan sinar las dapat merusak mata dalam jangka pendek maupun panjang',
                 'rekomendasi_perbaikan' => 'Menyediakan dan mewajibkan penggunaan welding mask yang layak',
-                'dept_penanggungjwb' => 'Produksi',
+                'dept_penanggungjwb' => 49, // Operasional
                 'nama_pengawas'      => 'Supriyadi',
                 'due_date'           => '2026-07-08',
                 'status_pelaporan'   => 5,
@@ -165,14 +193,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-07',
-                'lokasi_bahaya'      => 'Area Kantin',
+                'lokasi_bahaya'      => 42, // Mess Adiarta
                 'shift'              => 1,
                 'data_pelaporan'     => 8,
                 'kategori_bahaya'    => 3,
-                'desc_kategori_bahaya' => 'Lantai kantin licin akibat tumpahan minyak dan tidak ada tanda peringatan',
+                'desc_kategori_bahaya' => 19, // Jalan Licin dan Bergelombang
+                'full_name'          => 'Dewi Sartika',
+                'employee_no'        => '001005',
+                'posisi'             => 'Staff GA',
                 'desc_temuan_bahaya' => 'Karyawan berpotensi terpeleset saat jam istirahat',
                 'rekomendasi_perbaikan' => 'Memasang rambu peringatan dan membersihkan lantai secara berkala',
-                'dept_penanggungjwb' => 'General Affair',
+                'dept_penanggungjwb' => 56, // GA
                 'nama_pengawas'      => 'Dewi Sartika',
                 'due_date'           => '2026-07-08',
                 'status_pelaporan'   => 5,
@@ -183,14 +214,17 @@ class HsePelaporanBahayaSeeder extends Seeder
             ],
             [
                 'tgl_pelaporan'      => '2026-07-08',
-                'lokasi_bahaya'      => 'Area Stock Yard',
+                'lokasi_bahaya'      => 45, // Pool 2-Yard
                 'shift'              => 2,
                 'data_pelaporan'     => 9,
                 'kategori_bahaya'    => 4,
-                'desc_kategori_bahaya' => 'Sling wire rope sudah aus dan tidak layak pakai digunakan untuk mengangkat beban',
+                'desc_kategori_bahaya' => 28, // Memakai alat atau perlengkapan yang rusak
+                'full_name'          => 'Hendra Gunawan',
+                'employee_no'        => '004021',
+                'posisi'             => 'Rigger',
                 'desc_temuan_bahaya' => 'Risiko sling putus dan beban jatuh yang dapat menyebabkan kecelakaan fatal',
                 'rekomendasi_perbaikan' => 'Mengganti wire rope dengan yang baru dan melakukan inspeksi rutin',
-                'dept_penanggungjwb' => 'Operasional',
+                'dept_penanggungjwb' => 49, // Operasional
                 'nama_pengawas'      => 'Hendra Gunawan',
                 'due_date'           => '2026-07-10',
                 'status_pelaporan'   => 5,
