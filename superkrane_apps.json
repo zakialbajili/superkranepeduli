@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "superkrane-apps",
+  "private_key_id": "8d1d5af06139f6dcd779e1f3fb1cdadaca7781a5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC6UPX0GE1EdRSR\nbkCTWBVAn4ZE0h5iCpNUPRLTcJIVcF3FMZu7sYKireCEtsfYTvtbA563p6tdnVJu\ngXQeOm9rIaY9fgBXN8qTtJKikOgumg8TUSMqgUHFkI4VtBIKab52ELJJGJy8yRTR\nvlYq7Wnf6wr4S+LYnMFYw67SG42gWrJ8Wtrp12ZzUz14JjQrPKgn21icUK0GLimE\nhrnFou8Bq54cF6y1AphsLrbzW+0jPwRmXGh9bhqfVmUWpNHXvQi8GqbGAW19z3z3\nN3uU5rhprGYeupE8g9hRQExNIsI5omFCYTZWO4cHBamSwqi7+IgowU2W4z9BbuqC\n4OB6X6HtAgMBAAECggEAC/g5j4tOziVrbdsUa6LkB/kiVMze8NOBxY6q5UnnyK17\nCLki1SXBS8GPRAIYyAJtpC+RBHbRdpEt2OBDh9GfPisKQAxr6dkxZYMwocsHb5RW\n1ZndKtTlAdPt8jeq/7TtbIOuwILD8bOavSLU7FXA+zFhd17WCFksaWR2QxShaPoZ\nA5w9Q8shjwrD+u7X1NYMfFSfYcJkFAetJGrnsuLl/4nHPZ/KMcm7bVbQYhPn4l51\nqUx7kyrmc5l/s5AnQThwMi2lFyT89/tSmx5zu0dVDH2oJPMwoPi8Y+l8nnuwE0gZ\naSQbmEOjXIchbnLYJFojbTWuyM8AX0ukyu6q9betjQKBgQD7Qet/b6Za7srJNrqr\nCyU8hHgahYWByiUpiAdeVcfT5UP8/vRT2CpBIvS91XF8uO5XD1J56Ftc4iQwKk0e\nNfmHS3LfFE84H3SSpdKRtYvnzEdXMmvSwVwMw1L053KG5pU16gXYC+arLC+GB+te\n2bPXeOLtNEWkVY2YkJkzo21GpwKBgQC91T5l/oPRE2Esll9O77MjGQOjM3xwbDnl\nKqTYW9siGNS+RlHprheactI4TCtMOI68EadwauNB0BaqP6GHAAwEnW+puy00pAml\npQ4oNjKQVjZsqhKyT4mlNZFgEtYJkb+vSvgSuvwhOIDvtAIJn6bmb42MuJqTBO4Q\nJJ3wyzF5SwKBgDOF1gPg4k0dUIooZejzNSSOyY4uuSzfRfWZRmGK15pVFjcIFRQo\nbKnEwEk5PrdjuMQziSckha+rU95onj3Gta+PwjOKl6Abmy0DQgXNI65ZzntMBJ5I\nNlcLqrQ7zdlp6UkP/zjJX/jT677hWtutatqRmH8py+oh/RI+/JuBNMRbAoGAdbPR\nk7YCj1Ef0GCQScZP4TQyUC+tOZuxLgmJ2mjh7ztMNYouYeDC283T0HpR4lmzDqM3\nmXl83SKj2v3HLoh16yqewLPA7MHFBYLYy1AHe/0ok6nEG/E7HEehkts7AQXwv0SR\nmjN7/zEkqPuIw+TMvFZwgs83cG7/GN1LXLDwRQ8CgYBjAjAI9w9+LWMbCg5TaevN\nrmgVKgkcuA0mdIgSlOBzBZrviHCyip49hj6S4Jw+7Me8HVT12ia6dVcj0gEw/f97\n1yVQcUjrd2FSJsFLUSYBTJeVA78M9mOCJdNKKM0eLjSo2JP3uqQFOhCgCNAXirPS\nGrY5Z/EMQlR2g3SLn71O0Q==\n-----END PRIVATE KEY-----\n",
+  "client_email": "mob-apps@superkrane-apps.iam.gserviceaccount.com",
+  "client_id": "111623656389774600475",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mob-apps%40superkrane-apps.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
