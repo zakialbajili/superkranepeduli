@@ -4,6 +4,7 @@ use App\Http\Controllers\backend\master\GroupMenuModuleController;
 use App\Http\Controllers\backend\master\MenuController;
 use App\Http\Controllers\backend\master\ModuleController;
 use App\Http\Controllers\backend\master\NotificationController;
+use App\Http\Controllers\backend\admin\DashboardAdminController;
 use App\Http\Controllers\backend\admin\ReportsAdminController;
 use App\Http\Controllers\backend\master\RoleController;
 use App\Http\Controllers\backend\master\TaskController;
@@ -56,6 +57,14 @@ Route::post('notification/readdatatables', [NotificationController::class, 'read
 Route::post('notification/unreaddatatables', [NotificationController::class, 'unreaddatatables'])->name('notification.unreaddatatables');
 Route::resource('notification', NotificationController::class);
 
+//Dashboard
+Route::get('dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
+Route::post('dashboard/duedatereportdatatable', [DashboardAdminController::class, 'duedatereportdatatable'])->name('dashboard.duedatereportdatatable');
+Route::get('dashboard/chartcountreport', [DashboardAdminController::class, 'chartCountReport'])->name('dashboard.chartcountreport');
+Route::get('dashboard/chartstatus', [DashboardAdminController::class, 'chartStatusReport'])->name('dashboard.chartstatus');
+Route::get('dashboard/chartkategori', [DashboardAdminController::class, 'chartKategoriReport'])->name('dashboard.chartkategori');
+Route::get('dashboard/chartjeniskondisi', [DashboardAdminController::class, 'chartJenisKondisiTidakAman'])->name('dashboard.chartjeniskondisi');
+Route::get('dashboard/chartjenistindakan', [DashboardAdminController::class, 'chartJenisTindakanTidakAman'])->name('dashboard.chartjenistindakan');
 //Reports
 Route::post('reports/datatable', [ReportsAdminController::class, 'datatable'])->name('reports.datatable');
 Route::resource('reports', ReportsAdminController::class);

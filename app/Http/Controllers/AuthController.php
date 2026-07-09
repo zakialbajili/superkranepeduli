@@ -43,20 +43,19 @@ class AuthController extends Controller
             Auth::user()->update(['token' => Session::getId(), 'login_last'=>now()]);
 
             $currentpage = 'admin.notification.index';
-            // $currentpage = 'admin.costsubmissionreportdata.index';
 
-            // $moduledata = DB::select('SELECT tmodule2.`url_view` FROM thseuser INNER JOIN `tmodule2`
-            // ON thseuser.`fk_module_id`=tmodule2.`pk_module_id` WHERE thseuser.`pk_user_id`=?', [Auth::user()->pk_user_id]);
-            // if ($moduledata) {
-            //     if (strpos($moduledata[0]->url_view, "|") > 0) {
-            //         $abl = explode("|", $moduledata[0]->url_view);
-            //         $currentpage = $abl[0];
-            //     } else {
-            //         if ($moduledata[0]->url_view != "") {
-            //             $currentpage = $moduledata[0]->url_view;
-            //         }
-            //     }
-            // }
+            $moduledata = DB::select('SELECT tmodule2.`url_view` FROM thseuser INNER JOIN `tmodule2`
+            ON thseuser.`fk_module_id`=tmodule2.`pk_module_id` WHERE thseuser.`pk_user_id`=?', [Auth::user()->pk_user_id]);
+            if ($moduledata) {
+                if (strpos($moduledata[0]->url_view, "|") > 0) {
+                    $abl = explode("|", $moduledata[0]->url_view);
+                    $currentpage = $abl[0];
+                } else {
+                    if ($moduledata[0]->url_view != "") {
+                        $currentpage = $moduledata[0]->url_view;
+                    }
+                }
+            }
             return redirect()->route($currentpage);
         }
 

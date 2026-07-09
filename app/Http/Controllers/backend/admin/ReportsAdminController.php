@@ -18,7 +18,7 @@ class ReportsAdminController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $headertag = 'Pelaporan Bahaya';
         $headername = 'Daftar Pelaporan Bahaya';
@@ -41,7 +41,22 @@ class ReportsAdminController extends Controller
         $dataLokasi = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Lokasi']);
         $dataDepartemen = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Departemen']);
 
-        return view('backend.master.admin.reports.index', compact('headerparam', 'dataShift', 'dataKategori', 'dataStatus', 'dataDataPelaporan', 'dataLokasi', 'dataDepartemen'));
+        $filterStatus = $request->get('filter_status', '');
+        $filterKategori = $request->get('filter_kategori', '');
+        $filterTanggal = $request->get('filter_tanggal', '');
+
+        return view('backend.master.admin.reports.index', compact(
+            'headerparam',
+            'dataShift',
+            'dataKategori',
+            'dataStatus',
+            'dataDataPelaporan',
+            'dataLokasi',
+            'dataDepartemen',
+            'filterStatus',
+            'filterKategori',
+            'filterTanggal'
+        ));
     }
 
     public function datatable(Request $request)

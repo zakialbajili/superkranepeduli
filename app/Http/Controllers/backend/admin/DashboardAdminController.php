@@ -1,0 +1,290 @@
+<?php
+
+namespace App\Http\Controllers\backend\admin;
+
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+use DB;
+
+class DashboardAdminController extends Controller
+{
+    /**
+     * Display the admin dashboard.
+     */
+    public function index()
+    {
+        $headertag = 'Dashboard';
+        $headername = 'Dashboard';
+        $headerlink = '#';
+        $parentname = 'Halaman Utama';
+        $parentlink = '#';
+
+        $headerparam = [
+            'headertag' => $headertag,
+            'headername' => $headername,
+            'headerlink' => $headerlink,
+            'parentname' => $parentname,
+            'parentlink' => $parentlink,
+        ];
+
+        // ---- Statistik Angka (ringan, tanpa data chart) ----
+        $totalLaporan = DB::table('thsepelaporanbahaya')->count();
+
+        $statusCounts = DB::table('thsepelaporanbahaya')
+            ->select('status_pelaporan', DB::raw('COUNT(*) AS total'))
+            ->groupBy('status_pelaporan')
+            ->get()
+            ->keyBy('status_pelaporan');
+
+        $openCount = $statusCounts->get(5)?->total ?? 0;
+        $progressCount = $statusCounts->get(6)?->total ?? 0;
+        $closedCount = $statusCounts->get(7)?->total ?? 0;
+
+        $tahunIni = now()->format('Y');
+
+        return view('backend.master.admin.dashboard.index', compact(
+            'headerparam',
+            'totalLaporan',
+            'openCount',
+            'progressCount',
+            'closedCount',
+            'tahunIni',
+        ));
+    }
+
+    /**
+     * AJAX: Get chart data (laporan per bulan) by year.
+     */
+    public function chartCountReport(Request $request)
+    {
+        $tahun = $request->get('tahun', now()->format('Y'));
+
+        $laporanPerBulan = DB::table('thsepelaporanbahaya')
+            ->select(DB::raw('MONTH(tgl_pelaporan) AS bulan'), DB::raw('COUNT(*) AS total'))
+            ->whereYear('tgl_pelaporan', $tahun)
+            ->groupBy(DB::raw('MONTH(tgl_pelaporan)'))
+            ->orderBy('bulan')
+            ->pluck('total', 'bulan');
+
+        $chartTotal = [];
+        $months = [];
+        foreach (range(1, 12) as $b) {
+            $chartTotal[] = $laporanPerBulan->get($b, 0);
+            $months[] = $b;
+        }
+
+        $namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        return response()->json([
+            'data' => $chartTotal,
+            'labels' => $namaBulan,
+            'months' => $months,
+            'tahun' => (int) $tahun,
+        ]);
+    }
+
+    /**
+     * AJAX: Get chart data (status laporan - doughnut).
+     */
+    public function chartStatusReport()
+    {
+        $statusCounts = DB::table('thsepelaporanbahaya AS t')
+            ->select('t.status_pelaporan', 's.name AS status_name', DB::raw('COUNT(*) AS total'))
+            ->leftJoin('thsedata_master AS s', 't.status_pelaporan', '=', 's.pk_hsedatamaster_id')
+            ->groupBy('t.status_pelaporan', 's.name')
+            ->get()
+            ->keyBy('status_pelaporan');
+
+        $labels = [];
+        $data = [];
+        $encryptedParams = [];
+
+        $labelMap = [5 => 'Open', 6 => 'On Progress', 7 => 'Closed'];
+
+        foreach ([5, 6, 7] as $s) {
+            $row = $statusCounts->get($s);
+            $count = $row?->total ?? 0;
+            $labels[] = $labelMap[$s] . ' (' . $count . ')';
+            $data[] = $count;
+            $encryptedParams[] = encryptId((string) $s);
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'encryptedParams' => $encryptedParams,
+        ]);
+    }
+
+    /**
+     * AJAX: Chart jenis kondisi tidak aman (desc_kategori_bahaya WHERE kategori_bahaya=3).
+     */
+    public function chartJenisKondisiTidakAman()
+    {
+        $data = DB::table('thsepelaporanbahaya AS t')
+            ->select('d.name', DB::raw('COUNT(*) AS total'))
+            ->leftJoin('thsedata_master AS d', 't.desc_kategori_bahaya', '=', 'd.pk_hsedatamaster_id')
+            ->where('t.kategori_bahaya', 3)
+            ->groupBy('d.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $labels = $data->pluck('name')->toArray();
+        $values = $data->pluck('total')->toArray();
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $values,
+        ]);
+    }
+
+    /**
+     * AJAX: Chart jenis tindakan tidak aman (desc_kategori_bahaya WHERE kategori_bahaya=4).
+     */
+    public function chartJenisTindakanTidakAman()
+    {
+        $data = DB::table('thsepelaporanbahaya AS t')
+            ->select('d.name', DB::raw('COUNT(*) AS total'))
+            ->leftJoin('thsedata_master AS d', 't.desc_kategori_bahaya', '=', 'd.pk_hsedatamaster_id')
+            ->where('t.kategori_bahaya', 4)
+            ->groupBy('d.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $labels = $data->pluck('name')->toArray();
+        $values = $data->pluck('total')->toArray();
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $values,
+        ]);
+    }
+
+    /**
+     * AJAX: Get chart data (kategori bahaya - doughnut).
+     */
+    public function chartKategoriReport()
+    {
+        $kategoriCounts = DB::table('thsepelaporanbahaya AS t')
+            ->select('k.pk_hsedatamaster_id', 'k.name', DB::raw('COUNT(*) AS total'))
+            ->leftJoin('thsedata_master AS k', 't.kategori_bahaya', '=', 'k.pk_hsedatamaster_id')
+            ->groupBy('k.pk_hsedatamaster_id', 'k.name')
+            ->get();
+
+        $labels = $kategoriCounts->pluck('name')->toArray();
+        $data = $kategoriCounts->pluck('total')->toArray();
+        $encryptedParams = $kategoriCounts->pluck('pk_hsedatamaster_id')
+            ->map(fn($id) => encryptId((string) $id))
+            ->toArray();
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'encryptedParams' => $encryptedParams,
+        ]);
+    }
+
+    /**
+     * DataTable: Laporan dengan due date mendekati 30 hari.
+     */
+    public function duedatereportdatatable(Request $request)
+    {
+        $columns = [
+            'due_date',
+            'sisa_hari',
+            'full_name',
+            'employee_no',
+            'lokasi_bahaya',
+            'desc_temuan_bahaya',
+            'kategori_bahaya',
+            'status_pelaporan',
+        ];
+        $columnkey = 'pk_hsepelaporanbahaya_id';
+        $selectColumn = [
+            't.pk_hsepelaporanbahaya_id',
+            't.full_name',
+            't.employee_no',
+            't.due_date',
+            DB::raw('DATEDIFF(t.due_date, CURDATE()) AS sisa_hari'),
+            DB::raw('COALESCE(lokasi_m.name, t.lokasi_bahaya) AS lokasi_bahaya'),
+            DB::raw('COALESCE(kat_m.name, t.kategori_bahaya) AS kategori_bahaya'),
+            DB::raw('COALESCE(status_m.name, t.status_pelaporan) AS status_pelaporan'),
+            DB::raw('LEFT(t.desc_temuan_bahaya, 100) AS desc_temuan_bahaya'),
+        ];
+        $selectColumn[] = "t.$columnkey";
+        $searchColumn = [
+            't.full_name',
+            't.employee_no',
+            'lokasi_m.name',
+            'kat_m.name',
+            'status_m.name',
+            't.desc_temuan_bahaya',
+        ];
+        $order = [$columns[0], 'asc'];
+
+        if (isset($request["order"])) {
+            $order = [$columns[$request['order']['0']['column']], $request['order']['0']['dir']];
+        }
+
+        // Base query
+        $queryBuilder = DB::table('thsepelaporanbahaya AS t')
+            ->select($selectColumn)
+            ->leftJoin('thsedata_master AS lokasi_m', 't.lokasi_bahaya', '=', 'lokasi_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS kat_m', 't.kategori_bahaya', '=', 'kat_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS status_m', 't.status_pelaporan', '=', 'status_m.pk_hsedatamaster_id')
+            ->whereNotNull('t.due_date')
+            ->where('t.status_pelaporan', '!=', 7) // exclude Closed
+            ->whereBetween('t.due_date', [now()->subDays(1), now()->addDays(30)]);
+
+        $alldata = (clone $queryBuilder)->count();
+
+        if (!empty($request['search']['value'])) {
+            $searchValue = $request['search']['value'];
+            $queryBuilder->where(function ($query) use ($searchColumn, $searchValue) {
+                foreach ($searchColumn as $column) {
+                    $query->orWhere($column, 'like', "%{$searchValue}%");
+                }
+            });
+        }
+
+        $filteredrecordcount = (clone $queryBuilder)->count();
+        $datas = $queryBuilder->orderBy($order[0], $order[1])
+            ->skip($request['start'])
+            ->take($request['length'])
+            ->get();
+
+        $dataresult = [];
+        foreach ($datas as $data) {
+            $subdata = [];
+            foreach ($columns as $column) {
+                switch ($column) {
+                    case 'sisa_hari':
+                        $subdata[] = "<p class='p-1 bg-danger rounded text-center'>" . $data->$column . " Hari Lagi" . "</p>";
+                        break;
+                    case 'due_date':
+                        $subdata[] = $data->due_date ? Carbon::parse($data->due_date)->format('d-m-Y') : '-';
+                        break;
+                    default:
+                        $subdata[] = $data->$column ?? '-';
+                        break;
+                }
+            }
+
+            $id = encrypt($data->pk_hsepelaporanbahaya_id);
+            $detail = '<a href="' . route('admin.reports.show', $id) . '" class="btn btn-sm btn-primary"><i class="fas fa-search"></i></a>';
+            $subdata[] = $detail;
+
+            $dataresult[] = $subdata;
+        }
+
+        return response()->json([
+            "draw" => intval($request["draw"]),
+            "recordsTotal" => $alldata,
+            "recordsFiltered" => $filteredrecordcount,
+            "data" => $dataresult
+        ], 200);
+    }
+}
