@@ -23,7 +23,7 @@
                 <div class="col-sm-3">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Filter</h5>
+                            <h5 class="mb-0">Filter</h5>
                         </div>
                         <div class="card-body">
                             <form action="" id="filter-data">
@@ -59,12 +59,17 @@
                                         {!! $dataStatus !!}
                                     </select>
                                 </div>
-                                <button type="button" id="btn-filter" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-search"></i> Filter
-                                </button>
-                                <button type="button" id="btn-reset" class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-undo"></i> Reset
-                                </button>
+                                <div class="d-flex gap-1">
+                                    <button type="button" id="btn-filter" class="btn btn-sm btn-success">
+                                        <i class="fas fa-search"></i> Filter
+                                    </button>
+                                    <button type="button" id="btn-reset" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-undo"></i> Reset
+                                    </button>
+                                    <button type="button" id="btn-export" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-file-alt"></i> Export
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>

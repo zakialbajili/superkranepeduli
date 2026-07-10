@@ -1,12 +1,13 @@
 <script>
-    $(function() {
+    $(function () {
         // Cek filter_status dari URL (dari dashboard)
         var filterStatus = '{{ $filterStatus ?? '' }}';
         var filterKategori = '{{ $filterKategori ?? '' }}';
         var filterTanggal = '{{ $filterTanggal ?? '' }}';
 
+        // ===== HANDLE FILTERING FROM DASHBOARD =====
         if (filterStatus !== '') {
-            $('#status_pelaporan option').each(function() {
+            $('#status_pelaporan option').each(function () {
                 if ($(this).val() === filterStatus) {
                     $('#status_pelaporan').val($(this).val());
                     return false;
@@ -15,7 +16,7 @@
         }
 
         if (filterKategori !== '') {
-            $('#kategori_bahaya option').each(function() {
+            $('#kategori_bahaya option').each(function () {
                 if ($(this).val() === filterKategori) {
                     $('#kategori_bahaya').val($(this).val());
                     return false;
@@ -36,18 +37,18 @@
                 $('#tgl_pelaporan').val(firstDay + ' - ' + lastDayStr);
             }
         }
-
+        //=============================================
         var obj_report = dataTableBoilerPlate(
             'dataTable',
             "{!! route('admin.reports.datatable') !!}",
-            function(d) {
+            function (d) {
                 var formData = $('#filter-data').serializeArrayFormJSON();
                 d.data = formData;
             },
             [[0, 'desc']],
             [{
-                "targets":9,
-                "orderable":false
+                "targets": 9,
+                "orderable": false
             }]
         );
 
@@ -64,24 +65,39 @@
             autoUpdateInput: false
         });
 
-        $('#tgl_pelaporan').on('apply.daterangepicker', function(ev, picker) {
+        $('#tgl_pelaporan').on('apply.daterangepicker', function (ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
         });
 
-        $('#tgl_pelaporan').on('cancel.daterangepicker', function(ev, picker) {
+        $('#tgl_pelaporan').on('cancel.daterangepicker', function (ev, picker) {
             $(this).val('');
         });
 
         // Filter button
-        $('#btn-filter').on('click', function() {
+        $('#btn-filter').on('click', function () {
             obj_report.ajax.reload();
         });
 
         // Reset button
-        $('#btn-reset').on('click', function() {
+        $('#btn-reset').on('click', function () {
             $('#filter-data')[0].reset();
             $('#tgl_pelaporan').val('');
             obj_report.ajax.reload();
         });
+
+        // Export data to excel
+        $("#btn-export").click(function () {
+            $.ajax({
+                type: 'post',
+                url: "{{ route('admin.reports.exportexcel') }}",
+                data: {
+                    data: $('#filter-data').serializeArrayFormJSON()
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $.LoadingOverlay("hide");
+                    toastr.error(xhr.responseJSON.message);
+                }
+            })
+        })
     })
 </script>

@@ -67,6 +67,7 @@ Route::get('dashboard/chartjeniskondisi', [DashboardAdminController::class, 'cha
 Route::get('dashboard/chartjenistindakan', [DashboardAdminController::class, 'chartJenisTindakanTidakAman'])->name('dashboard.chartjenistindakan');
 //Reports
 Route::post('reports/datatable', [ReportsAdminController::class, 'datatable'])->name('reports.datatable');
+Route::post('reports/exportexcel', [ReportsAdminController::class, 'exportexcel'])->name('reports.exportexcel');
 Route::resource('reports', ReportsAdminController::class);
 
 

@@ -159,9 +159,14 @@
                                         <i class="fas fa-paperclip text-info mr-2 fa-lg"></i>
                                         <span>Dokumen / Foto Terlampir</span>
                                     </div>
-                                    <a href="{{ asset($report->document) }}" target="_blank" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i> Lihat Dokumen
-                                    </a>
+                                    <div>
+                                        <a href="{{ asset($report->document) }}" target="_blank" class="btn btn-sm btn-info mr-1">
+                                            <i class="fas fa-eye"></i> Lihat
+                                        </a>
+                                        <a href="{{ asset($report->document) }}" download class="btn btn-sm btn-success">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </div>
                                 </div>
                             @else
                                 <p class="text-muted mb-0"><i class="fas fa-info-circle mr-1"></i> Tidak ada dokumen terlampir</p>
@@ -204,7 +209,7 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label><i class="fas fa-building text-secondary mr-1"></i> Dept. Penanggung Jawab</label>
-                                        <p class="form-control-static">{{ $report->dept_penanggungjwb_name ?? $report->dept_penanggungjwb ?? '-' }}</p>
+                                        <p class="form-control-static">{{ $report->dept_penanggungjwb_name ?? $report->dept_penanggungjwb_name ?? '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">

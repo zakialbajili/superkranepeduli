@@ -182,10 +182,16 @@
                                                         <i class="fas fa-paperclip text-info mr-2"></i>
                                                         <span class="small">Dokumen Saat Ini</span>
                                                     </div>
-                                                    <a href="{{ asset($report->document) }}" target="_blank"
-                                                        class="btn btn-sm btn-info">
-                                                        <i class="fas fa-eye"></i> Lihat
-                                                    </a>
+                                                    <div>
+                                                        <a href="{{ asset($report->document) }}" target="_blank"
+                                                            class="btn btn-sm btn-info mr-1">
+                                                            <i class="fas fa-eye"></i> Lihat
+                                                        </a>
+                                                        <a href="{{ asset($report->document) }}" download
+                                                            class="btn btn-sm btn-success">
+                                                            <i class="fas fa-download"></i> Download
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endif
@@ -215,9 +221,11 @@
                                             <label for="dept_penanggungjwb"><i
                                                     class="fas fa-building text-secondary mr-1"></i> Dept. Penanggung
                                                 Jawab</label>
-                                            <input type="text" id="dept_penanggungjwb" name="dept_penanggungjwb"
-                                                class="form-control" placeholder="Contoh: HSE"
-                                                value="{{ $report->dept_penanggungjwb }}">
+                                            <select name="dept_penanggungjwb" id="dept_penanggungjwb"
+                                                class="form-control custom-select">
+                                                <option value="">Pilih Departemen</option>
+                                                {!! $dataDepartemen !!}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -247,13 +255,15 @@
                     </div>
                 </div>
 
-                <div class="card-footer text-right">
-                    <a href="{{ route('admin.reports.index') }}" class="btn btn-default mr-2">
-                        <i class="fas fa-arrow-left mr-1"></i> Kembali
-                    </a>
-                    <button id="save" type="button" class="btn btn-info px-4">
-                        <i class="fas fa-save mr-1"></i> Simpan Perubahan
-                    </button>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between text-right">
+                        <a href="{{ route('admin.reports.index') }}" class="btn btn-default mr-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Kembali
+                        </a>
+                        <button id="save" type="button" class="btn btn-info">
+                            <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

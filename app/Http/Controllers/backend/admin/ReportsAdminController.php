@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\backend\admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ExportExcelReportsHSE;
 use App\Traits\ModuleTraits;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 use DB;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ReportsAdminController extends Controller
 {
@@ -138,22 +141,22 @@ class ReportsAdminController extends Controller
                     }
                 }
                 if (!empty($datafilter["shift"])) {
-                    $query->where('t.shift', decryptId($datafilter["shift"]));
+                    $query->where('t.shift', decryptForNumber($datafilter["shift"]));
                 }
                 if (!empty($datafilter["kategori_bahaya"])) {
-                    $query->where('t.kategori_bahaya', decryptId($datafilter["kategori_bahaya"]));
+                    $query->where('t.kategori_bahaya', decryptForNumber($datafilter["kategori_bahaya"]));
                 }
                 if (!empty($datafilter["status_pelaporan"])) {
-                    $query->where('t.status_pelaporan', decryptId($datafilter["status_pelaporan"]));
+                    $query->where('t.status_pelaporan', decryptForNumber($datafilter["status_pelaporan"]));
                 }
                 if (!empty($datafilter["data_pelaporan"])) {
-                    $query->where('t.data_pelaporan', decryptId($datafilter["data_pelaporan"]));
+                    $query->where('t.data_pelaporan', decryptForNumber($datafilter["data_pelaporan"]));
                 }
                 if (!empty($datafilter["lokasi_bahaya"])) {
-                    $query->where('t.lokasi_bahaya', decryptId($datafilter["lokasi_bahaya"]));
+                    $query->where('t.lokasi_bahaya', decryptForNumber($datafilter["lokasi_bahaya"]));
                 }
                 if (!empty($datafilter["dept_penanggungjwb"])) {
-                    $query->where('t.dept_penanggungjwb', decryptId($datafilter["dept_penanggungjwb"]));
+                    $query->where('t.dept_penanggungjwb', decryptForNumber($datafilter["dept_penanggungjwb"]));
                 }
             });
         }
@@ -299,20 +302,20 @@ class ReportsAdminController extends Controller
 
             $updateData = [
                 'tgl_pelaporan'          => $dataform['tgl_pelaporan'] ?? null,
-                'lokasi_bahaya'          => !empty($dataform['lokasi_bahaya']) ? decryptId($dataform['lokasi_bahaya']) : null,
-                'shift'                  => !empty($dataform['shift']) ? decryptId($dataform['shift']) : null,
-                'data_pelaporan'         => !empty($dataform['data_pelaporan']) ? decryptId($dataform['data_pelaporan']) : null,
-                'kategori_bahaya'        => !empty($dataform['kategori_bahaya']) ? decryptId($dataform['kategori_bahaya']) : null,
-                'desc_kategori_bahaya'   => !empty($dataform['desc_kategori_bahaya']) ? decryptId($dataform['desc_kategori_bahaya']) : null,
+                'lokasi_bahaya'          => !empty($dataform['lokasi_bahaya']) ? decryptForNumber($dataform['lokasi_bahaya']) : null,
+                'shift'                  => !empty($dataform['shift']) ? decryptForNumber($dataform['shift']) : null,
+                'data_pelaporan'         => !empty($dataform['data_pelaporan']) ? decryptForNumber($dataform['data_pelaporan']) : null,
+                'kategori_bahaya'        => !empty($dataform['kategori_bahaya']) ? decryptForNumber($dataform['kategori_bahaya']) : null,
+                'desc_kategori_bahaya'   => !empty($dataform['desc_kategori_bahaya']) ? decryptForNumber($dataform['desc_kategori_bahaya']) : null,
                 'desc_temuan_bahaya'     => $dataform['desc_temuan_bahaya'] ?? null,
                 'rekomendasi_perbaikan'  => $dataform['rekomendasi_perbaikan'] ?? null,
                 'employee_no'            => $dataform['employee_no'] ?? null,
                 'full_name'              => $dataform['full_name'] ?? null,
                 'posisi'                 => $dataform['posisi'] ?? null,
-                'dept_penanggungjwb'     => !empty($dataform['dept_penanggungjwb']) ? decryptId($dataform['dept_penanggungjwb']) : null,
+                'dept_penanggungjwb'     => !empty($dataform['dept_penanggungjwb']) ? decryptForNumber($dataform['dept_penanggungjwb']) : null,
                 'nama_pengawas'          => $dataform['nama_pengawas'] ?? null,
                 'due_date'               => $dataform['due_date'] ?? null,
-                'status_pelaporan'       => !empty($dataform['status_pelaporan']) ? decryptId($dataform['status_pelaporan']) : null,
+                'status_pelaporan'       => !empty($dataform['status_pelaporan']) ? decryptForNumber($dataform['status_pelaporan']) : null,
                 'updated_date'           => now(),
                 'updated_by'             => Auth::user()->name ?? '',
             ];
@@ -404,5 +407,23 @@ class ReportsAdminController extends Controller
         }
 
         return view('backend.master.admin.reports.view', compact('headerparam', 'report'));
+    }
+    public function exportexcel(Request $request)
+    {
+        try {
+            $dataFilter = [
+                "tgl_pelaporan" => "",
+                "shift" => "",
+                "data_pelaporan" => "",
+                "kategori_bahaya" => "",
+                "status_pelaporan" => ""
+            ];
+            if ($request->has('data') && isset($request['data'])) {
+                $dataFilter = $request['data'][0];
+            }
+            ExportExcelReportsHSE::dispatch($dataFilter, $request->user());
+        } catch (Exception $e) {
+            Log::error("Export Excel Error: " . $e->getMessage());
+        }
     }
 }
