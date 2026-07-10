@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\backend\aol\webhook;
+use App\Http\Controllers\backend\user\HseReportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Illuminate\Http\Request;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return view('backend.login');
 });
 
 Route::post('login-page', [AuthController::class, 'customLogin'])->name('login.custom');
@@ -27,6 +28,22 @@ Route::get('login', [AuthController::class, 'index'])->name('login')->middleware
 Route::get('login/admin', [AuthController::class, 'AdminLogin'])->name('loginAdmin')->middleware("throttle:8,2");
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+// HSE PROGRAM PEDULI 
+Route::get('/formreport', [HseReportController::class, 'index'])->name('hse.report.index');
+Route::post('submit-hse-report', [HseReportController::class, 'store'])->name('hse.report.store');
+Route::get('/riwayat-pelaporan', [HseReportController::class, 'history'])->name('hse.report.history');
+
+// RUTE JEMBATAN (AJAX API -> Session Web Laravel)
+Route::post('/auth/bridge', function (Request $request) {
+    // Langsung simpan semua data yang dikirim oleh AJAX (JS) ke dalam Session
+    session([
+        'api_token' => $request->input('token'),
+        'employee_no' => $request->input('employee_no'),
+        'full_name' => $request->input('full_name'),
+        'position' => $request->input('position'),
+        'is_logged_in_api' => true // Flag penanda sukses login
+    ]);
+
+    // Kembalikan respons sukses ke JavaScript
+    return response()->json(['status' => 200, 'message' => 'Session web berhasil dibuat']);
 });

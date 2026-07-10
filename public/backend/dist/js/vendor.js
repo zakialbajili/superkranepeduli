@@ -643,3 +643,138 @@ function dataTableBoilerPlate(id, route, data, order = [[0, 'asc']], columnDefs 
         });
     return dt;
 }
+
+/**
+ * Boilerplate untuk membuat Chart.js chart yang di-load via AJAX.
+ * Otomatis manage instance chart — destroy sebelumnya jika ada, render yang baru setelah AJAX success.
+ *
+ * @param {string|Object}   opts.canvasId          ID elemen <canvas> (tanpa #)
+ * @param {string}          opts.type              Tipe chart: 'bar', 'doughnut', 'pie', 'line', etc.
+ * @param {string}          opts.url               URL endpoint AJAX yg mengembalikan JSON { labels, data, colors? }
+ * @param {Object}          opts.options           (optional) Opsi Chart.js tambahan, akan di-merge dgn default
+ * @param {Object}          opts.datasets          (optional) Kustom datasets untuk chart selain doughnut/pie — default [{ label, data, backgroundColor, ... }]
+ * @param {Function}        opts.onBeforeLoad      (optional) Callback sebelum AJAX, menerima jQuery deferred
+ * @param {Function}        opts.onAfterLoad       (optional) Callback setelah chart digambar, menerima (chartInstance)
+ * @param {Function}        opts.transformResponse (optional) Callback untuk transform response JSON sebelum digambar
+ * @param {Object}          opts.ajaxParams        (optional) Parameter tambahan untuk $.ajax ({ data, headers, ... })
+ * @returns {Chart|null} Instance chart, atau null jika gagal.
+ *
+ * @example
+ * // Simple doughnut
+ * chartBoilerPlate({ canvasId: 'chartStatus', type: 'doughnut', url: '/admin/dashboard/chartstatus' });
+ *
+ * @example
+ * // Bar chart with year filter callback
+ * chartBoilerPlate({
+ *     canvasId: 'chartBulan',
+ *     type: 'bar',
+ *     url: '/admin/dashboard/chartcountreport',
+ *     ajaxParams: { data: { tahun: 2026 } },
+ *     options: {
+ *         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+ *         plugins: { legend: { display: false } }
+ *     }
+ * });
+ */
+var _chartInstances = {};
+
+function chartBoilerPlate(opts) {
+    if (!opts || !opts.canvasId || !opts.type || !opts.url) {
+        console.error('chartBoilerPlate: canvasId, type, dan url wajib diisi.');
+        return null;
+    }
+    var canvas = document.getElementById(opts.canvasId);
+    if (!canvas) {
+        console.error('chartBoilerPlate: Canvas #' + opts.canvasId + ' tidak ditemukan.');
+        return null;
+    }
+    var ctx = canvas.getContext('2d');
+
+    // Destroy existing instance
+    if (_chartInstances[opts.canvasId]) {
+        _chartInstances[opts.canvasId].destroy();
+        _chartInstances[opts.canvasId] = null;
+    }
+
+    // Default options per type
+    var defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+    };
+    // Merge user options over defaults
+    var mergedOptions = $.extend(true, {}, defaultOptions, opts.options || {});
+
+    var ajaxParams = $.extend(true, {
+        url: opts.url,
+        type: 'GET',
+        dataType: 'json',
+    }, opts.ajaxParams || {});
+
+    // Optional: custom dataset callback for types other than doughnut/pie
+    if (typeof opts.onBeforeLoad === 'function') {
+        opts.onBeforeLoad(ajaxParams);
+    }
+
+    $.ajax(ajaxParams).done(function (res) {
+        // Optional: transform raw response
+        if (typeof opts.transformResponse === 'function') {
+            res = opts.transformResponse(res);
+        }
+
+        var chartData;
+        if (opts.datasets) {
+            // Fully custom datasets — use as-is
+            chartData = opts.datasets;
+        } else if (opts.type === 'doughnut' || opts.type === 'pie') {
+            chartData = {
+                labels: res.labels || [],
+                datasets: [{
+                    data: res.data || [],
+                    backgroundColor: res.colors || undefined,
+                    borderWidth: 2,
+                }]
+            };
+        } else {
+            // Bar / line / radar — one dataset from { labels, data }
+            chartData = {
+                labels: res.labels || [],
+                datasets: [{
+                    label: (opts.options && opts.options.datasetLabel) ? opts.options.datasetLabel : 'Data',
+                    data: res.data || [],
+                    backgroundColor: res.colors || undefined,
+                    borderColor: res.borderColors || undefined,
+                    borderWidth: 1,
+                    borderRadius: opts.type === 'bar' ? 4 : 0,
+                }]
+            };
+        }
+
+        _chartInstances[opts.canvasId] = new Chart(ctx, {
+            type: opts.type,
+            data: chartData,
+            options: mergedOptions
+        });
+
+        // Store encryptedParams on chart instance untuk onClick redirect
+        if (res.encryptedParams) {
+            _chartInstances[opts.canvasId]._encryptedParams = res.encryptedParams;
+        }
+
+        if (typeof opts.onAfterLoad === 'function') {
+            opts.onAfterLoad(_chartInstances[opts.canvasId]);
+        }
+    }).fail(function (jqXHR, textStatus) {
+        console.error('chartBoilerPlate: Gagal load chart #' + opts.canvasId, textStatus);
+    });
+
+    // Return helper to reload later
+    return {
+        reload: function (newOpts) {
+            if (newOpts) {
+                chartBoilerPlate($.extend({}, opts, newOpts));
+            } else {
+                chartBoilerPlate(opts);
+            }
+        }
+    };
+}
