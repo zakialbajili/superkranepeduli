@@ -16,6 +16,27 @@
                 "orderable": false
             }]
         );
+        // =========================================================
+        // DataTable Ranking Pelapor (dengan highlight top 3)
+        // =========================================================
+        dataTableBoilerPlate(
+            'rankTable',
+            "{!! route('admin.dashboard.rankreportdatatable') !!}",
+            function (d) {},
+            [],
+            [{ orderable: false, targets: '_all' }]
+        );
+
+        // Highlight rows untuk top 3 gold/silver/bronze
+        $('#rankTable').off('draw.dt').on('draw.dt', function () {
+            $('#rankTable tbody tr').each(function () {
+                var rankCell = $(this).find('td:first').html() || '';
+                $(this).removeClass('rank-gold rank-silver rank-bronze');
+                if (rankCell.indexOf('rank-1') !== -1) $(this).addClass('rank-gold');
+                else if (rankCell.indexOf('rank-2') !== -1) $(this).addClass('rank-silver');
+                else if (rankCell.indexOf('rank-3') !== -1) $(this).addClass('rank-bronze');
+            });
+        });
 
         // =========================================================
         // Chart: Laporan Per Bulan (Bar) — via AJAX boilerplate

@@ -287,4 +287,120 @@ class DashboardAdminController extends Controller
             "data" => $dataresult
         ], 200);
     }
+    /**
+     * DataTable: 10 besar user yang melakukan pelaporan bahaya (ranking by jumlah laporan).
+     */
+    public function rankreportdatatable(Request $request)
+    {
+        $columns = [
+            'peringkat',
+            'employee_no',
+            'full_name',
+            'posisi',
+            'jumlah',
+        ];
+
+        // Leaderboard selalu urut berdasarkan peringkat (kolom 0 ascending)
+        // Tidak mendengarkan request order dari DataTable — semua kolom non-orderable
+        $order = [$columns[0], 'asc'];
+
+        // Subquery: group by employee_no untuk menghitung jumlah laporan per user,
+        // lengkap dengan ROW_NUMBER sebagai peringkat sebenarnya berdasarkan jumlah laporan.
+        $sub = DB::table('thsepelaporanbahaya')
+            ->select(
+                'employee_no',
+                DB::raw('MAX(full_name) AS full_name'),
+                DB::raw('MAX(posisi) AS posisi'),
+                DB::raw('COUNT(pk_hsepelaporanbahaya_id) AS jumlah'),
+                DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(pk_hsepelaporanbahaya_id) DESC, MAX(tgl_pelaporan) DESC) AS peringkat')
+            )
+            ->groupBy('employee_no');
+
+        // Total records: jumlah unique employee yang pernah melapor
+        $alldata = (clone $sub)->get()->count();
+
+        // Wrap subquery sebagai derived table untuk difilter dan diorder
+        $queryBuilder = DB::table(DB::raw("({$sub->toSql()}) as ranked"))
+            ->mergeBindings($sub);
+
+        $searchColumn = ['ranked.employee_no', 'ranked.full_name', 'ranked.posisi'];
+
+        if (!empty($request['search']['value'])) {
+            $searchValue = $request['search']['value'];
+            $queryBuilder->where(function ($query) use ($searchColumn, $searchValue) {
+                foreach ($searchColumn as $column) {
+                    $query->orWhere($column, 'like', "%{$searchValue}%");
+                }
+            });
+        }
+
+        $filteredrecordcount = (clone $queryBuilder)->count();
+
+        $datas = $queryBuilder
+            ->orderBy($order[0], $order[1])
+            ->skip($request['start'])
+            ->take($request['length'])
+            ->get();
+
+        $dataresult = [];
+        foreach ($datas as $data) {
+            $subdata = [];
+            $peringkat = (int) $data->peringkat;
+
+            // Kolom 0: peringkat — trophy/medal (berdasarkan peringkat sebenarnya dari DB)
+            switch ($peringkat) {
+                case 1:
+                    $rankHtml = '<div class="rank-trophy rank-1">'
+                        . '<i class="fas fa-trophy"></i>'
+                        . '<span>#1</span>'
+                        . '</div>';
+                    break;
+                case 2:
+                    $rankHtml = '<div class="rank-trophy rank-2">'
+                        . '<i class="fas fa-medal"></i>'
+                        . '<span>#2</span>'
+                        . '</div>';
+                    break;
+                case 3:
+                    $rankHtml = '<div class="rank-trophy rank-3">'
+                        . '<i class="fas fa-medal"></i>'
+                        . '<span>#3</span>'
+                        . '</div>';
+                    break;
+                default:
+                    $rankHtml = '<div class="rank-number">#' . $peringkat . '</div>';
+                    break;
+            }
+            $subdata[] = $rankHtml;
+
+            // Kolom 1: employee_no
+            $subdata[] = $data->employee_no ?? '-';
+
+            // Kolom 2: full_name
+            $subdata[] = '<span class="' . ($peringkat <= 3 ? 'fw-bold' : '') . '">' . ($data->full_name ?? '-') . '</span>';
+
+            // Kolom 3: posisi
+            $subdata[] = $data->posisi ?? '-';
+
+            // Kolom 4: jumlah — badge laporan
+            $badgeColor = match (true) {
+                $peringkat === 1 => 'badge-gold',
+                $peringkat === 2 => 'badge-silver',
+                $peringkat === 3 => 'badge-bronze',
+                default => 'badge-primary',
+            };
+            $subdata[] = '<span class="rank-badge ' . $badgeColor . '">'
+                . '<i class="fas fa-file-alt mr-1"></i> '
+                . $data->jumlah . ' Laporan</span>';
+
+            $dataresult[] = $subdata;
+        }
+
+        return response()->json([
+            "draw" => intval($request["draw"]),
+            "recordsTotal" => $alldata,
+            "recordsFiltered" => $filteredrecordcount,
+            "data" => $dataresult,
+        ], 200);
+    }
 }
