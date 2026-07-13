@@ -96,7 +96,12 @@
                                     <select name="lokasi_bahaya" id="lokasi_bahaya" class="form-control custom-select">
                                         <option value="">-- Pilih Lokasi --</option>
                                         {!! $dataLokasi !!}
+                                        <option value="other" {!! $isLokasiCustom ? 'selected' : '' !!}>Lainnya...</option>
                                     </select>
+                                    <input type="text" name="lokasi_bahaya_other" id="lokasi_bahaya_other"
+                                        class="form-control mt-2" placeholder="Tulis lokasi lainnya..."
+                                        value="{{ $isLokasiCustom ? $report->lokasi_bahaya : '' }}"
+                                        style="{{ $isLokasiCustom ? '' : 'display:none;' }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="kategori_bahaya"><i class="fas fa-tag text-danger mr-1"></i> Kategori
@@ -114,11 +119,17 @@
                                         <option value="">-- Pilih Jenis Bahaya --</option>
                                         <optgroup label="☑ Kondisi Tidak Aman" id="opt-kondisi" {!! $report->kategori_bahaya == 3 ? '' : 'style="display:none"' !!}>
                                             {!! $dataJenisKondisi !!}
+                                            <option value="other" {!! $isJenisCustom ? 'selected' : '' !!}>Lainnya...</option>
                                         </optgroup>
                                         <optgroup label="☑ Tindakan Tidak Aman" id="opt-tindakan" {!! $report->kategori_bahaya == 4 ? '' : 'style="display:none"' !!}>
                                             {!! $dataJenisTindakan !!}
+                                            <option value="other" {!! $isJenisCustom ? 'selected' : '' !!}>Lainnya...</option>
                                         </optgroup>
                                     </select>
+                                    <input type="text" name="desc_kategori_bahaya_other" id="desc_kategori_bahaya_other"
+                                        class="form-control mt-2" placeholder="Tulis jenis bahaya lainnya..."
+                                        value="{{ $isJenisCustom ? $report->desc_kategori_bahaya : '' }}"
+                                        style="{{ $isJenisCustom ? '' : 'display:none;' }}">
                                 </div>
                             </div>
                         </div>
@@ -177,7 +188,7 @@
                                             <div class="mt-3 w-100" id="existing-document">
                                                 <hr>
                                                 <div
-                                                    class="d-flex align-items-center justify-content-between bg-white p-2 rounded border">
+                                                    class="d-flex flex-column flex-sm-row align-items-center justify-content-between bg-white p-2 gap-2 rounded border">
                                                     <div>
                                                         <i class="fas fa-paperclip text-info mr-2"></i>
                                                         <span class="small">Dokumen Saat Ini</span>

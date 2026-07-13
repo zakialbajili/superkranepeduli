@@ -96,7 +96,7 @@
                                             <th>Data Pelaporan</th>
                                             <th>Kategori Bahaya</th>
                                             <th>Status</th>
-                                            <th>Aksi</th>
+                                            <th style="min-width: 100px;">Aksi</th>
                                         </tr>
                                     </thead>
                                 </table>

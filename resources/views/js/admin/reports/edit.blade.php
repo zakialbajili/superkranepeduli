@@ -6,6 +6,8 @@
             $('#opt-kondisi').hide();
             $('#opt-tindakan').hide();
             $('#desc_kategori_bahaya').val('');
+            // $('#desc_kategori_bahaya_other').hide().val('');
+            $('#desc_kategori_bahaya_other').hide();
             return;
         }
         var text = $(this).find('option:selected').text().trim();
@@ -20,6 +22,26 @@
             $('#opt-tindakan').hide();
         }
         $('#desc_kategori_bahaya').val('');
+        // $('#desc_kategori_bahaya_other').hide().val('');
+        $('#desc_kategori_bahaya_other').hide();
+    });
+
+    // ========== LOKASI BAHAYA ⇢ TOGGLE INPUT OTHER ==========
+    $('#lokasi_bahaya').on('change', function() {
+        if ($(this).val() === 'other') {
+            $('#lokasi_bahaya_other').show();
+        } else {
+            $('#lokasi_bahaya_other').hide();
+        }
+    });
+
+    // ========== JENIS BAHAYA ⇢ TOGGLE INPUT OTHER ==========
+    $('#desc_kategori_bahaya').on('change', function() {
+        if ($(this).val() === 'other') {
+            $('#desc_kategori_bahaya_other').show();
+        } else {
+            $('#desc_kategori_bahaya_other').hide();
+        }
     });
 
     // ========== DRAG-DROP UPLOAD CUSTOM ==========
@@ -116,10 +138,18 @@
                 formData.append('_method', 'PUT');
                 formData.append('data[dataform][0][tgl_pelaporan]', dataform[0].tgl_pelaporan || '');
                 formData.append('data[dataform][0][lokasi_bahaya]', dataform[0].lokasi_bahaya || '');
+                if($('#lokasi_bahaya').val() != 'other'){
+                    $('#lokasi_bahaya_other').val('')
+                }
+                formData.append('data[dataform][0][lokasi_bahaya_other]', $('#lokasi_bahaya_other').val() || '');
                 formData.append('data[dataform][0][shift]', dataform[0].shift || '');
                 formData.append('data[dataform][0][data_pelaporan]', dataform[0].data_pelaporan || '');
                 formData.append('data[dataform][0][kategori_bahaya]', dataform[0].kategori_bahaya || '');
                 formData.append('data[dataform][0][desc_kategori_bahaya]', dataform[0].desc_kategori_bahaya || '');
+                if($('#desc_kategori_bahaya').val() != 'other'){
+                    $('#desc_kategori_bahaya_other').val('')
+                }
+                formData.append('data[dataform][0][desc_kategori_bahaya_other]', $('#desc_kategori_bahaya_other').val() || '');
                 formData.append('data[dataform][0][desc_temuan_bahaya]', dataform[0].desc_temuan_bahaya || '');
                 formData.append('data[dataform][0][rekomendasi_perbaikan]', dataform[0].rekomendasi_perbaikan || '');
                 formData.append('data[dataform][0][dept_penanggungjwb]', dataform[0].dept_penanggungjwb || '');
@@ -130,6 +160,12 @@
                 formData.append('data[dataform][0][due_date]', dataform[0].due_date || '');
                 formData.append('data[dataform][0][status_pelaporan]', dataform[0].status_pelaporan || '');
                 if ($('#document')[0].files[0]) {
+                    var fileSize = $('#document')[0].files[0].size;
+                    if (fileSize > 5 * 1024 * 1024) {
+                        $.LoadingOverlay("hide");
+                        toastr.error('Ukuran file tidak boleh lebih dari 5 MB');
+                        return;
+                    }
                     formData.append('data[dataform][0][document]', $('#document')[0].files[0]);
                 }
 
@@ -152,7 +188,12 @@
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
                         $.LoadingOverlay("hide");
-                        toastr.error(xhr.responseJSON?.message || 'Terjadi kesalahan');
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            var messages = Object.values(xhr.responseJSON.errors).flat();
+                            toastr.error(messages[0] || 'Validasi gagal');
+                        } else {
+                            toastr.error(xhr.responseJSON?.message || 'Terjadi kesalahan');
+                        }
                     }
                 });
             }

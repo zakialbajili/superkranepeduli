@@ -125,14 +125,14 @@ class DashboardAdminController extends Controller
     public function chartJenisKondisiTidakAman()
     {
         $data = DB::table('thsepelaporanbahaya AS t')
-            ->select('d.name', DB::raw('COUNT(*) AS total'))
+            ->select(DB::raw('COALESCE(d.name, t.desc_kategori_bahaya) AS label'), DB::raw('COUNT(*) AS total'))
             ->leftJoin('thsedata_master AS d', 't.desc_kategori_bahaya', '=', 'd.pk_hsedatamaster_id')
             ->where('t.kategori_bahaya', 3)
-            ->groupBy('d.name')
+            ->groupBy(DB::raw('COALESCE(d.name, t.desc_kategori_bahaya)'))
             ->orderByDesc('total')
             ->get();
 
-        $labels = $data->pluck('name')->toArray();
+        $labels = $data->pluck('label')->toArray();
         $values = $data->pluck('total')->toArray();
 
         return response()->json([
@@ -147,14 +147,14 @@ class DashboardAdminController extends Controller
     public function chartJenisTindakanTidakAman()
     {
         $data = DB::table('thsepelaporanbahaya AS t')
-            ->select('d.name', DB::raw('COUNT(*) AS total'))
+            ->select(DB::raw('COALESCE(d.name, t.desc_kategori_bahaya) AS label'), DB::raw('COUNT(*) AS total'))
             ->leftJoin('thsedata_master AS d', 't.desc_kategori_bahaya', '=', 'd.pk_hsedatamaster_id')
             ->where('t.kategori_bahaya', 4)
-            ->groupBy('d.name')
+            ->groupBy(DB::raw('COALESCE(d.name, t.desc_kategori_bahaya)'))
             ->orderByDesc('total')
             ->get();
 
-        $labels = $data->pluck('name')->toArray();
+        $labels = $data->pluck('label')->toArray();
         $values = $data->pluck('total')->toArray();
 
         return response()->json([
