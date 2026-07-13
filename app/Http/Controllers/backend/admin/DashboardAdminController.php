@@ -60,29 +60,35 @@ class DashboardAdminController extends Controller
      */
     public function chartCountReport(Request $request)
     {
-        $tahun = $request->get('tahun', now()->format('Y'));
+        $startMonth = $request->get('start_month');
+        $endMonth = $request->get('end_month');
 
-        $laporanPerBulan = DB::table('thsepelaporanbahaya')
-            ->select(DB::raw('MONTH(tgl_pelaporan) AS bulan'), DB::raw('COUNT(*) AS total'))
-            ->whereYear('tgl_pelaporan', $tahun)
-            ->groupBy(DB::raw('MONTH(tgl_pelaporan)'))
-            ->orderBy('bulan')
-            ->pluck('total', 'bulan');
+        $query = DB::table('thsepelaporanbahaya');
 
-        $chartTotal = [];
-        $months = [];
-        foreach (range(1, 12) as $b) {
-            $chartTotal[] = $laporanPerBulan->get($b, 0);
-            $months[] = $b;
+        if ($startMonth) {
+            $query->where('tgl_pelaporan', '>=', $startMonth . '-01');
+        }
+        if ($endMonth) {
+            $query->where('tgl_pelaporan', '<=', $endMonth . '-31');
         }
 
-        $namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $laporanPerBulan = (clone $query)
+            ->select(DB::raw('MONTH(tgl_pelaporan) AS bulan'), DB::raw('YEAR(tgl_pelaporan) AS tahun'), DB::raw('COUNT(*) AS total'))
+            ->groupBy(DB::raw('YEAR(tgl_pelaporan)'), DB::raw('MONTH(tgl_pelaporan)'))
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        $chartTotal = [];
+        $labels = [];
+        foreach ($laporanPerBulan as $row) {
+            $labels[] = $row->tahun . ' ' . substr('JanFebMarAprMeiJunJulAguSepOktNovDes', ($row->bulan - 1) * 3, 3);
+            $chartTotal[] = $row->total;
+        }
 
         return response()->json([
             'data' => $chartTotal,
-            'labels' => $namaBulan,
-            'months' => $months,
-            'tahun' => (int) $tahun,
+            'labels' => $labels,
         ]);
     }
 
@@ -292,6 +298,10 @@ class DashboardAdminController extends Controller
      */
     public function rankreportdatatable(Request $request)
     {
+        $datafilter = [];
+        if (isset($request['data'][0])) {
+            $datafilter = $request['data'][0];
+        }
         $columns = [
             'peringkat',
             'employee_no',
@@ -304,10 +314,6 @@ class DashboardAdminController extends Controller
         // Tidak mendengarkan request order dari DataTable — semua kolom non-orderable
         $order = [$columns[0], 'asc'];
 
-        // Filter tanggal dari request
-        $startDate = $request->get('start_date');
-        $endDate = $request->get('end_date');
-
         // Subquery: group by employee_no untuk menghitung jumlah laporan per user,
         // lengkap dengan ROW_NUMBER sebagai peringkat sebenarnya berdasarkan jumlah laporan.
         $sub = DB::table('thsepelaporanbahaya')
@@ -318,8 +324,6 @@ class DashboardAdminController extends Controller
                 DB::raw('COUNT(pk_hsepelaporanbahaya_id) AS jumlah'),
                 DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(pk_hsepelaporanbahaya_id) DESC, MAX(tgl_pelaporan) DESC) AS peringkat')
             )
-            ->when($startDate, fn ($q) => $q->whereDate('tgl_pelaporan', '>=', $startDate))
-            ->when($endDate, fn ($q) => $q->whereDate('tgl_pelaporan', '<=', $endDate))
             ->groupBy('employee_no');
 
         // Total records: jumlah unique employee yang pernah melapor

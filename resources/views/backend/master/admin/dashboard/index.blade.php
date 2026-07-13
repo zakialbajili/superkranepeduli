@@ -135,17 +135,12 @@
                 <div class="col-12">
                     <div class="card card-success card-outline">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-chart-bar mr-2"></i>Laporan Per Bulan</h3>
+                            <h3 class="card-title"><i class="fas fa-chart-bar mr-2"></i>Statistik Laporan</h3>
                             <div class="card-tools">
-                                <div class="input-group input-group-sm" style="width:180px;">
-                                    <input type="month" id="filter-tahun" class="form-control form-control-sm"
-                                        value="{{ $tahunIni }}-01">
-                                    <div class="input-group-append">
-                                        <button type="button" id="btn-reload-chart" class="btn btn-info btn-sm">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                <button type="button" id="btn-filter-stats" class="btn btn-sm btn-outline-success" onclick="$('#modalFilterStats').modal('show')">
+                                    <i class="fas fa-filter mr-1"></i> Filter
+                                </button>
+                                <span id="stats-filter-label" class="text-muted small ml-2"></span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -221,9 +216,58 @@
     </section>
 @endsection
 
+{{-- Modal Filter Statistik --}}
+<div class="modal fade" id="modalFilterStats" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="max-width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-filter mr-2"></i>Filter Statistik Laporan</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="$('#modalFilterStats').modal('hide')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Dari Bulan</label>
+                            <input type="month" id="stats-filter-start" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Sampai Bulan</label>
+                            <input type="month" id="stats-filter-end" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Rentang Waktu</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill filter-stats-badge"
+                                data-range="current-month"><i class="fas fa-calendar-check mr-1"></i>Current Month</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill filter-stats-badge"
+                                data-range="last-month">Last Month</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill filter-stats-badge"
+                                data-range="last-3">3 Bulan</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill filter-stats-badge"
+                                data-range="last-6">6 Bulan</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill filter-stats-badge"
+                                data-range="ytd">YTD</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill filter-stats-badge"
+                                data-range="all">Semua</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="$('#modalFilterStats').modal('hide')">Batal</button>
+                <button type="button" id="btn-apply-filter-stats" class="btn btn-info">
+                    <i class="fas fa-check mr-1"></i> Terapkan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Modal Filter Peringkat --}}
 <div class="modal fade" id="modalFilterRank" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-filter mr-2"></i>Filter Peringkat Pelapor</h5>

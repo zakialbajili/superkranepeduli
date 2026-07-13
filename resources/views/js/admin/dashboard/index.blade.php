@@ -83,6 +83,57 @@
             $('#rankTable').DataTable().ajax.reload();
         });
 
+        // =========================================================
+        // Statistik Laporan (Chart Bar) — filter bulan
+        // =========================================================
+        function fmtMonth(date) {
+            return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+        }
+
+        // Default: current month
+        var now = new Date();
+        var statsStart = fmtMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+        var statsEnd = fmtMonth(now);
+        $('#stats-filter-start').val(statsStart);
+        $('#stats-filter-end').val(statsEnd);
+        $('#stats-filter-label').text('(' + statsStart + ' s/d ' + statsEnd + ')');
+
+        // Klik badge — isi input bulan
+        $('.filter-stats-badge').on('click', function () {
+            $('.filter-stats-badge').removeClass('btn-primary').addClass('btn-light');
+            $(this).removeClass('btn-light').addClass('btn-primary');
+
+            var range = $(this).data('range');
+            var y = now.getFullYear(), m = now.getMonth();
+
+            switch (range) {
+                case 'current-month':
+                    $('#stats-filter-start').val(fmtMonth(new Date(y, m, 1)));
+                    $('#stats-filter-end').val(fmtMonth(now));
+                    break;
+                case 'last-month':
+                    $('#stats-filter-start').val(fmtMonth(new Date(y, m - 1, 1)));
+                    $('#stats-filter-end').val(fmtMonth(new Date(y, m, 0)));
+                    break;
+                case 'last-3':
+                    $('#stats-filter-start').val(fmtMonth(new Date(y, m - 2, 1)));
+                    $('#stats-filter-end').val(fmtMonth(now));
+                    break;
+                case 'last-6':
+                    $('#stats-filter-start').val(fmtMonth(new Date(y, m - 5, 1)));
+                    $('#stats-filter-end').val(fmtMonth(now));
+                    break;
+                case 'ytd':
+                    $('#stats-filter-start').val(y + '-01');
+                    $('#stats-filter-end').val(fmtMonth(now));
+                    break;
+                default: // all
+                    $('#stats-filter-start').val('');
+                    $('#stats-filter-end').val('');
+                    break;
+            }
+        });
+
         // Highlight rows untuk top 3 gold/silver/bronze
         $('#rankTable').off('draw.dt').on('draw.dt', function () {
             $('#rankTable tbody tr').each(function () {
@@ -95,18 +146,24 @@
         });
 
         // =========================================================
-        // Chart: Laporan Per Bulan (Bar) — via AJAX boilerplate
+        // Chart: Laporan Per Bulan (Bar) — via AJAX filter bulan
         // =========================================================
-        var bulanTahun = {!! $tahunIni !!};
         var reportsIndexUrl = "{!! route('admin.reports.index') !!}";
+        var chartBulanInstance = null;
 
-        function reloadChartBulan(tahun) {
+        function reloadChartBulan() {
+            var s = $('#stats-filter-start').val() || '';
+            var e = $('#stats-filter-end').val() || '';
+
             chartBoilerPlate({
                 canvasId: 'chartBulan',
                 type: 'bar',
                 url: "{!! route('admin.dashboard.chartcountreport') !!}",
                 ajaxParams: {
-                    data: { tahun: tahun }
+                    data: {
+                        start_month: s,
+                        end_month: e,
+                    }
                 },
                 options: {
                     responsive: true,
@@ -119,26 +176,32 @@
                     },
                     onClick: function (evt, elements, chart) {
                         if (elements && elements.length > 0) {
-                            var idx = elements[0].index;
-                            var month = idx + 1;
-                            var year = tahun;
-                            window.location.href = reportsIndexUrl + '?filter_tanggal=' + year + '-' + String(month).padStart(2, '0');
+                            var label = chart.data.labels[elements[0].index] || '';
+                            var parts = label.split(' ');
+                            var year = parts[0];
+                            var monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                            var monthIdx = monthNames.indexOf(parts[1]) + 1;
+                            if (year && monthIdx) {
+                                window.location.href = reportsIndexUrl + '?filter_tanggal=' + year + '-' + String(monthIdx).padStart(2, '0');
+                            }
                         }
                     }
                 }
             });
         }
-        reloadChartBulan(bulanTahun);
 
-        function reloadChartTahun() {
-            var val = $('#filter-tahun').val();
-            if (val) {
-                var tahun = val.split('-')[0];
-                reloadChartBulan(tahun);
-            }
-        }
-        $('#btn-reload-chart').on('click', reloadChartTahun);
-        $('#filter-tahun').on('change', reloadChartTahun);
+        // Default: render current month
+        reloadChartBulan();
+
+        // Terapkan filter — reload chart + update label
+        $('#btn-apply-filter-stats').on('click', function () {
+            var s = $('#stats-filter-start').val() || '';
+            var e = $('#stats-filter-end').val() || '';
+            $('#stats-filter-label').text(s || e ? '(' + s + ' s/d ' + e + ')' : '(semua waktu)');
+            $('#modalFilterStats').modal('hide');
+            reloadChartBulan();
+        });
+        // $('#filter-tahun').on('change', reloadChartTahun);
 
         // =========================================================
         // Chart: Status Laporan (doughnut) — via AJAX boilerplate
