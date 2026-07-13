@@ -126,9 +126,16 @@ class AuthController extends Controller
                     }
                 }
             }
+
+            if ($request->ajax()) {
+                return response()->json(['status' => 'success', 'redirect' => route($currentpage)]);
+            }
             return redirect()->route($currentpage);
         }
 
+        if ($request->ajax()) {
+            return response()->json(['status' => 'error', 'message' => 'Username / Password Salah'], 422);
+        }
         return redirect("login/admin")->with('error', 'Username / Password Salah');
     }
     public function logout(Request $request)
