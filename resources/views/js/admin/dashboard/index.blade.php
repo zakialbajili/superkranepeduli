@@ -17,15 +17,71 @@
             }]
         );
         // =========================================================
-        // DataTable Ranking Pelapor (dengan highlight top 3)
+        // DataTable Ranking Pelapor — filter di modal
         // =========================================================
+        function fmt(date) {
+            return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+        }
+
+        // Default filter: current month
+        var now = new Date();
+        var defaultStart = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+        var defaultEnd = fmt(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+        $('#rank-filter-start').val(defaultStart);
+        $('#rank-filter-end').val(defaultEnd);
+
         dataTableBoilerPlate(
             'rankTable',
             "{!! route('admin.dashboard.rankreportdatatable') !!}",
-            function (d) {},
+            function (d) {
+                d.start_date = $('#rank-filter-start').val() || '';
+                d.end_date = $('#rank-filter-end').val() || '';
+            },
             [],
             [{ orderable: false, targets: '_all' }]
         );
+
+        // Klik badge — isi input tanggal
+        $('.filter-badge').on('click', function () {
+            $('.filter-badge').removeClass('btn-primary').addClass('btn-light');
+            $(this).removeClass('btn-light').addClass('btn-primary');
+
+            var range = $(this).data('range');
+            var y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+
+            switch (range) {
+                case 'current-month':
+                    $('#rank-filter-start').val(fmt(new Date(y, m, 1)));
+                    $('#rank-filter-end').val(fmt(new Date(y, m + 1, 0)));
+                    break;
+                case 'last-month':
+                    $('#rank-filter-start').val(fmt(new Date(y, m - 1, 1)));
+                    $('#rank-filter-end').val(fmt(new Date(y, m, 0)));
+                    break;
+                case 'last-30':
+                    $('#rank-filter-start').val(fmt(new Date(y, m, d - 30)));
+                    $('#rank-filter-end').val(fmt(new Date(y, m, d)));
+                    break;
+                case 'last-90':
+                    $('#rank-filter-start').val(fmt(new Date(y, m, d - 90)));
+                    $('#rank-filter-end').val(fmt(new Date(y, m, d)));
+                    break;
+                case 'ytd':
+                    $('#rank-filter-start').val(y + '-01-01');
+                    $('#rank-filter-end').val(fmt(new Date(y, m, d)));
+                    break;
+                default: // all
+                    $('#rank-filter-start').val('');
+                    $('#rank-filter-end').val('');
+                    break;
+            }
+        });
+
+        // Terapkan — baca input tanggal, tutup modal, reload
+        $('#btn-apply-filter-rank').on('click', function () {
+            $('#modalFilterRank').modal('hide');
+            $('#rankTable').DataTable().ajax.reload();
+        });
 
         // Highlight rows untuk top 3 gold/silver/bronze
         $('#rankTable').off('draw.dt').on('draw.dt', function () {

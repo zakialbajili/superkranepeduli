@@ -129,7 +129,7 @@ class AuthController extends Controller
             return redirect()->route($currentpage);
         }
 
-        return redirect("login")->with('error', 'Username / Password Salah');
+        return redirect("login/admin")->with('error', 'Username / Password Salah');
     }
     public function logout(Request $request)
     {

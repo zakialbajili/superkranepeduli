@@ -304,6 +304,10 @@ class DashboardAdminController extends Controller
         // Tidak mendengarkan request order dari DataTable — semua kolom non-orderable
         $order = [$columns[0], 'asc'];
 
+        // Filter tanggal dari request
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
         // Subquery: group by employee_no untuk menghitung jumlah laporan per user,
         // lengkap dengan ROW_NUMBER sebagai peringkat sebenarnya berdasarkan jumlah laporan.
         $sub = DB::table('thsepelaporanbahaya')
@@ -314,6 +318,8 @@ class DashboardAdminController extends Controller
                 DB::raw('COUNT(pk_hsepelaporanbahaya_id) AS jumlah'),
                 DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(pk_hsepelaporanbahaya_id) DESC, MAX(tgl_pelaporan) DESC) AS peringkat')
             )
+            ->when($startDate, fn ($q) => $q->whereDate('tgl_pelaporan', '>=', $startDate))
+            ->when($endDate, fn ($q) => $q->whereDate('tgl_pelaporan', '<=', $endDate))
             ->groupBy('employee_no');
 
         // Total records: jumlah unique employee yang pernah melapor
