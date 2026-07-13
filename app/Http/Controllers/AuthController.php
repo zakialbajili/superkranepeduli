@@ -33,7 +33,7 @@ class AuthController extends Controller
             $formattedDate = "$year-$month-$day";
 
             // 3. Cek ke database lokal DENGAN validasi active = 1
-            $user = DB::table('tuser')
+            $user = DB::table('thseusermobile')
                 ->where('employee_no', $employeeNo)
                 ->where('birth_date', $formattedDate)
                 ->where('active', 1)
@@ -56,7 +56,7 @@ class AuthController extends Controller
 
                 // --- UPDATE LOGIN TERAKHIR & TOKEN ---
                 // Simpan juga session id ke dalam kolom token seperti admin
-                DB::table('tuser')
+                DB::table('thseusermobile')
                     ->where('pk_user_id', $user->pk_user_id)
                     ->update([
                         'token' => $request->session()->getId(),
