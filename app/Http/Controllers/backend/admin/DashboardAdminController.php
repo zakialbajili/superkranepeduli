@@ -316,6 +316,9 @@ class DashboardAdminController extends Controller
 
         // Subquery: group by employee_no untuk menghitung jumlah laporan per user,
         // lengkap dengan ROW_NUMBER sebagai peringkat sebenarnya berdasarkan jumlah laporan.
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
         $sub = DB::table('thsepelaporanbahaya')
             ->select(
                 'employee_no',
@@ -324,6 +327,8 @@ class DashboardAdminController extends Controller
                 DB::raw('COUNT(pk_hsepelaporanbahaya_id) AS jumlah'),
                 DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(pk_hsepelaporanbahaya_id) DESC, MAX(tgl_pelaporan) DESC) AS peringkat')
             )
+            ->when($startDate, fn ($q) => $q->whereDate('tgl_pelaporan', '>=', $startDate))
+            ->when($endDate, fn ($q) => $q->whereDate('tgl_pelaporan', '<=', $endDate))
             ->groupBy('employee_no');
 
         // Total records: jumlah unique employee yang pernah melapor
