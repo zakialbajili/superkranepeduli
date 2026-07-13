@@ -310,7 +310,8 @@
                         <div>
                             <small>Tanggal Laporan</small>
                             <span>
-                                {{ \Carbon\Carbon::parse($item->created_date)->format('d M Y') }}
+                                {{-- {{ \Carbon\Carbon::parse($item->created_date)->format('d M Y') }} --}}
+                                {{ \Carbon\Carbon::parse($item->tgl_pelaporan)->locale('id')->isoFormat('D MMMM Y') }}
                             </span>
                         </div>
                     </div>
