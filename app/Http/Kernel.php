@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'accessroute' => \App\Http\Middleware\AccessRoute::class,
         'XSS' => \App\Http\Middleware\XSS::class,
+        'cek.login.user' => \App\Http\Middleware\CekLoginUser::class,
     ];
 }

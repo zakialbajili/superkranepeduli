@@ -11,17 +11,6 @@ use Carbon\Carbon;
 class HseReportController extends Controller
 {
 
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            // Cek session login dari API
-            if (!session('is_logged_in_api')) {
-                // Jika kosong, kembalikan ke halaman login
-                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-            }
-            return $next($request);
-        });
-    }
     public function index()
     {
 
@@ -40,7 +29,7 @@ class HseReportController extends Controller
         $optionLokasi = '';
         $listLokasi = DB::table('thsedata_master')->select('*')->where('type', '=', 'Lokasi')->get();
         foreach ($listLokasi as $item) {
-            $optionLokasi .= "<option value='$item->name'>$item->name</option>";
+            $optionLokasi .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionKategoriBahaya = '';
@@ -58,14 +47,13 @@ class HseReportController extends Controller
         $optionTindakanTidakAman = '';
         $listTindakanTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Tindakan Tidak Aman')->get();
         foreach ($listTindakanTidakAman as $item) {
-            $optionTindakanTidakAman .= "<option value='$item->name'>$item->name</option>";
-            // $optionTindakanTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
+            $optionTindakanTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
+
         $optionKondisiTidakAman = '';
         $listKondisiTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Kondisi Tidak Aman')->get();
         foreach ($listKondisiTidakAman as $item) {
-            $optionKondisiTidakAman .= "<option value='$item->name'>$item->name</option>";
-            // $optionKondisiTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
+            $optionKondisiTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         return view('backend.user.formreport', [
@@ -94,15 +82,8 @@ class HseReportController extends Controller
             'dept_penanggungjwb' => 'required|string|max:30',
             'nama_pengawas' => 'required|string|max:100',
             'due_date' => 'required|date',
-            'document' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'document' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:10240',
         ]);
-
-        // dd([
-        //     'desc_kategori_tindakan' => $request->desc_kategori_tindakan,
-        //     'desc_kategori_kondisi'  => $request->desc_kategori_kondisi,
-        //     'desc_kategori_bahaya_other' => $request->desc_kategori_bahaya_other,
-        //     'all_request' => $request->all()
-        // ]);
 
         try {
             // 2. Setup Data Identitas dari Session API
@@ -118,23 +99,61 @@ class HseReportController extends Controller
                 $documentPath = $file->storeAs('hse-documents', $filename, 'public');
             }
 
-            // 4. Logika Penentuan Lokasi Bahaya (Teks Murni dari HTML)
-            $lokasiFinal = $request->lokasi_bahaya_select;
-            if (blank($lokasiFinal) || stripos($lokasiFinal, 'other') !== false || stripos($lokasiFinal, 'lainnya') !== false) {
+
+
+            // ================================================================
+            // 4. Logika Penentuan Lokasi Bahaya
+            // ================================================================
+            $rawLokasi = $request->lokasi_bahaya_select;
+
+            if (blank($rawLokasi) || stripos($rawLokasi, 'other') !== false || stripos($rawLokasi, 'lainnya') !== false) {
+                // JIKA OTHER: Ambil langsung dari ketikan teks manual
                 $lokasiFinal = $request->lokasi_bahaya_other;
+            } else {
+                // JIKA PILIH DARI DATABASE: Dekripsi dan jadikan ID sebagai nilai final
+                $lokasiFinal = decryptId($rawLokasi);
             }
 
+            // $rawLokasi = $request->lokasi_bahaya_select;
+
+            // if (blank($rawLokasi) || stripos($rawLokasi, 'other') !== false || stripos($rawLokasi, 'lainnya') !== false) {
+            //     // JIKA OTHER: Ambil langsung dari ketikan manual
+            //     $lokasiFinal = $request->lokasi_bahaya_other;
+            // }
+            // else {
+            //     // JIKA PILIH DARI DATABASE: Dekripsi ID-nya, lalu ambil teks 'name' aslinya
+            //     $lokasiId = decryptId($rawLokasi);
+            //     $lokasiFinal = DB::table('thsedata_master')
+            //         ->where('pk_hsedatamaster_id', $lokasiId)
+            //         ->value('name');
+            // }
+
+            // ================================================================
             // 5. Logika Penentuan Detail Kategori Bahaya (Tindakan / Kondisi)
-            // Mengambil nilai dari dropdown yang tidak disabled di HTML
+            // ================================================================
             $rawDetailBahaya = $request->desc_kategori_tindakan ?: $request->desc_kategori_kondisi;
 
             if (blank($rawDetailBahaya) || stripos($rawDetailBahaya, 'other') !== false || stripos($rawDetailBahaya, 'lainnya') !== false) {
-                // Jika memilih "Other", ambil dari input text manual
+                // JIKA OTHER: Ambil langsung dari ketikan teks manual
                 $descKategoriFinal = $request->desc_kategori_bahaya_other;
             } else {
-                // Jika memilih opsi bawaan, langsung ambil teks nilainya (karena sudah berupa teks murni)
-                $descKategoriFinal = $rawDetailBahaya;
+                // JIKA PILIH DARI DATABASE: Dekripsi dan jadikan ID sebagai nilai final
+                $descKategoriFinal = decryptId($rawDetailBahaya);
             }
+
+            // $rawDetailBahaya = $request->desc_kategori_tindakan ?: $request->desc_kategori_kondisi;
+
+            // if (blank($rawDetailBahaya) || stripos($rawDetailBahaya, 'other') !== false || stripos($rawDetailBahaya, 'lainnya') !== false) {
+            //     // JIKA OTHER: Ambil langsung dari ketikan manual
+            //     $descKategoriFinal = $request->desc_kategori_bahaya_other;
+            // }
+            // else {
+            //     // JIKA PILIH DARI DATABASE: Dekripsi ID-nya, lalu ambil teks 'name' aslinya
+            //     $descId = decryptId($rawDetailBahaya);
+            //     $descKategoriFinal = DB::table('thsedata_master')
+            //         ->where('pk_hsedatamaster_id', $descId)
+            //         ->value('name');
+            // }
 
             // 6. Dekripsi untuk kolom-kolom yang menggunakan ID terenkripsi
             $shiftFinal = decryptId($request->shift);
@@ -189,26 +208,32 @@ class HseReportController extends Controller
 
     public function history()
     {
-        // Ambil NIK dari session
-        $nikUser = session('employee_no');
+        $employeeNo = session('employee_no');
 
-        // Tarik data menggunakan Query Builder + JOIN ke tabel master
+        // Ambil data dengan Join dan Alias
         $riwayatLaporan = DB::table('thsepelaporanbahaya as a')
+            // Join untuk Kategori dan Status (Ini pasti berupa ID)
+            ->leftJoin('thsedata_master as master_kategori', 'a.kategori_bahaya', '=', 'master_kategori.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master as master_status', 'a.status_pelaporan', '=', 'master_status.pk_hsedatamaster_id')
+
+            // Join untuk Lokasi dan Detail (Bisa berupa ID, bisa berupa Teks)
+            ->leftJoin('thsedata_master as master_lokasi', 'a.lokasi_bahaya', '=', 'master_lokasi.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master as master_desc', 'a.desc_kategori_bahaya', '=', 'master_desc.pk_hsedatamaster_id')
+
             ->select(
                 'a.*',
-                'kat.name as nama_kategori', // Ambil nama kategori
-                'stat.name as nama_status'   // Ambil nama status
-            )
-            // Relasi untuk Kategori Bahaya
-            ->leftJoin('thsedata_master as kat', 'a.kategori_bahaya', '=', 'kat.pk_hsedatamaster_id')
-            // Relasi untuk Status Pelaporan
-            ->leftJoin('thsedata_master as stat', 'a.status_pelaporan', '=', 'stat.pk_hsedatamaster_id')
+                'master_kategori.name as nama_kategori',
+                'master_status.name as nama_status',
 
-            ->where('a.created_by', $nikUser)
+                // KUNCI UTAMA: COALESCE
+                // Jika master_lokasi.name NULL (karena input manual), maka ambil a.lokasi_bahaya
+                DB::raw('COALESCE(master_lokasi.name, a.lokasi_bahaya) as lokasi_final'),
+                DB::raw('COALESCE(master_desc.name, a.desc_kategori_bahaya) as desc_final')
+            )
+            ->where('a.employee_no', $employeeNo)
             ->orderBy('a.created_date', 'desc')
             ->get();
 
-        // Lempar data ke view
         return view('backend.user.history', [
             'riwayatLaporan' => $riwayatLaporan
         ]);

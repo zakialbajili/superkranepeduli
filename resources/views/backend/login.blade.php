@@ -24,10 +24,11 @@
         .login-card {
             background: #ffffff;
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 370px;
+            transform: translateY(-20px);
         }
 
         .login-header {
@@ -99,6 +100,13 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
         }
+
+        .btn-login:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+            pointer-events: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -107,7 +115,7 @@
     <div class="login-card">
         <div class="login-header">
             <i class="fa-solid fa-hard-hat"></i>
-            <h3>PROGRAM PEDULI</h3>
+            <h3>SUPERKRANE PEDULI</h3>
             <p>(Pekerja Dukung Lingkungan Aman)</p>
         </div>
 
@@ -126,7 +134,7 @@
             <div class="form-group">
                 <i class="fa-solid fa-lock"></i>
                 <input type="password" id="password" name="password" class="form-control" required
-                    placeholder="Tanggal Lahir (DDMMYYYY)">
+                    placeholder="Tanggal Lahir (DDMMYYYY)" inputmode="numeric">
             </div>
             <button type="submit" class="btn-login" id="btnLogin">Login</button>
         </form>

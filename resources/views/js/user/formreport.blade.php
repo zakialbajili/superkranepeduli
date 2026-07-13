@@ -83,7 +83,9 @@
                 reader.onload = function (event) {
                     let imgElement = $('<img>')
                         .attr('src', event.target.result)
-                        .addClass('preview-image');
+                        .addClass('img-fluid rounded mt-3 border')
+                        .css({ 'max-height': '300px', 'width': '100%', 'object-fit': 'cover' });
+
                     $('#preview-container').append(imgElement);
                 }
                 reader.readAsDataURL(file);
@@ -160,23 +162,24 @@
 
         // Tombol "Gunakan Foto Ini" ditekan
         $('#btn-use-photo').click(function () {
-            // 1. Ubah gambar di Canvas menjadi tipe file Blob (seperti file fisik JPG)
             canvasElement.toBlob(function (blob) {
-                // 2. Buat File Object baru dari Blob tersebut
                 let fileName = "webcam_capture_" + new Date().getTime() + ".jpg";
                 let file = new File([blob], fileName, { type: "image/jpeg", lastModified: new Date().getTime() });
 
-                // 3. Tipuan JavaScript (DataTransfer) untuk memasukkan file ke dalam <input type="file">
                 let container = new DataTransfer();
                 container.items.add(file);
                 document.getElementById('foto_input').files = container.files;
 
-                // 4. Panggil event 'change' agar logika preview (Thumbnail) lama Anda terpancing / muncul
                 $('#foto_input').trigger('change');
 
-                // 5. Tutup modal (kamera otomatis mati karena event hidden.bs.modal di atas)
+                // (BARU) Matikan kamera secara instan sebelum modal ditutup
+                if (webcamStream) {
+                    webcamStream.getTracks().forEach(track => track.stop());
+                    webcamStream = null;
+                }
+
                 $('#kameraModal').modal('hide');
-            }, 'image/jpeg', 0.85); // 0.85 adalah kualitas kompresi JPG (85%)
+            }, 'image/jpeg', 0.85);
         });
 
         // 3. LOGIKA SUBMIT FORM KE CONTROLLER LARAVEL
@@ -210,8 +213,8 @@
                             allowOutsideClick: false // Mencegah user klik di luar kotak
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // Reload halaman HANYA setelah user menekan tombol Selesai
-                                window.location.reload();
+                                // window.location.reload();
+                                window.location.href = '/riwayat-pelaporan';
                             }
                         });
                     }

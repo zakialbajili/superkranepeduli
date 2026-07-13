@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Program Peduli - Superkrane</title>
+    <title>Superkrane Peduli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -152,7 +152,7 @@
             <div>
                 <span class="safety-badge mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> Safety
                     First</span>
-                <h1 class="h3 mb-1 fw-bold">PROGRAM PEDULI</h1>
+                <h1 class="h3 mb-1 fw-bold">SUPERKRANE PEDULI</h1>
                 {{-- <h5>(Pekerja Dukung Lingkungan Aman)</h5> --}}
                 <p class="mb-0 opacity-75 text-sm">Pelaporan Terhadap Bahaya K3.</p>
             </div>
@@ -192,8 +192,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Posisi</label>
-                                <input type="text" name="posisi" class="form-control" value="{{ session('position') }}"
-                                    readonly>
+                                <input type="text" name="posisi" class="form-control" value="{{ session('position') }}">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tanggal Pelaporan Bahaya</label>
@@ -288,8 +287,7 @@
                             <div class="upload-zone" onclick="document.getElementById('foto_input').click()">
                                 <i class="fa-solid fa-cloud-arrow-up fa-2x"></i>
                                 <p class="mb-1 fw-semibold text-sm mt-2">Ambil Foto / Pilih Gambar</p>
-                                <input type="file" id="foto_input" name="document" accept="image/*" class="d-none"
-                                    capture="environment">
+                                <input type="file" id="foto_input" name="document" class="d-none">
                             </div>
 
                             <button type="button" class="btn btn-outline-secondary w-100 mt-3 btn-sm d-none d-md-block"
