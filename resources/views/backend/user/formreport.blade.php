@@ -192,10 +192,12 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Posisi<span class="text-danger">*</span></label>
-                                <input type="text" name="posisi" class="form-control" value="{{ session('position') }}">
+                                <input type="text" name="posisi" class="form-control" value="{{ session('position') }}"
+                                    readonly>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Tanggal Pelaporan Bahaya<span class="text-danger">*</span></label>
+                                <label class="form-label">Tanggal Pelaporan Bahaya<span
+                                        class="text-danger">*</span></label>
                                 <input type="date" name="tgl_pelaporan" id="tgl_pelaporan" class="form-control"
                                     required>
                             </div>
@@ -222,7 +224,8 @@
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Lokasi Terjadinya Bahaya<span class="text-danger">*</span></label>
+                                <label class="form-label">Lokasi Terjadinya Bahaya<span
+                                        class="text-danger">*</span></label>
                                 <select name="lokasi_bahaya_select" id="lokasi_bahaya_select" class="form-select"
                                     required>
                                     <option value="">Pilih Lokasi</option>
@@ -242,7 +245,8 @@
                             </div>
 
                             <div class="col-12 mb-3" id="wrapper-tindakan" style="display: none; margin-top: -8px;">
-                                <label class="form-label text-danger">Pilih Tindakan Tidak Aman<span class="text-danger">*</span></label>
+                                <label class="form-label text-danger">Pilih Tindakan Tidak Aman<span
+                                        class="text-danger">*</span></label>
                                 <select name="desc_kategori_tindakan" id="select-tindakan" class="form-select">
                                     <option value="">Pilih Detail Tindakan...</option>
                                     {!! $optionTindakanTidakAman !!}
@@ -251,7 +255,8 @@
                             </div>
 
                             <div class="col-12 mb-3" id="wrapper-kondisi" style="display: none; margin-top: -8px;">
-                                <label class="form-label text-warning">Pilih Kondisi Tidak Aman<span class="text-danger">*</span></label>
+                                <label class="form-label text-warning">Pilih Kondisi Tidak Aman<span
+                                        class="text-danger">*</span></label>
                                 <select name="desc_kategori_kondisi" id="select-kondisi" class="form-select">
                                     <option value="">Pilih Detail Kondisi...</option>
                                     {!! $optionKondisiTidakAman !!}
@@ -265,11 +270,13 @@
                             </div>
 
                             <div class="col-12 mb-3">
-                                <label class="form-label">Deskripsikan Temuan Bahaya secara spesifik<span class="text-danger">*</span></label>
+                                <label class="form-label">Deskripsikan Temuan Bahaya secara spesifik<span
+                                        class="text-danger">*</span></label>
                                 <textarea name="desc_temuan_bahaya" class="form-control" rows="3" required></textarea>
                             </div>
                             <div class="col-12 mb-2">
-                                <label class="form-label">Rekomendasi Perbaikan<span class="text-danger">*</span></label>
+                                <label class="form-label">Rekomendasi Perbaikan<span
+                                        class="text-danger">*</span></label>
                                 <textarea name="rekomendasi_perbaikan" class="form-control" rows="3"
                                     required></textarea>
                             </div>
@@ -340,14 +347,16 @@
                         </div>
                         <div class="card-body p-4 row g-3">
                             <div class="col-12 mb-3">
-                                <label class="form-label">Departemen Penanggung Jawab<span class="text-danger">*</span></label>
+                                <label class="form-label">Departemen Penanggung Jawab<span
+                                        class="text-danger">*</span></label>
                                 <select name="dept_penanggungjwb" class="form-select" required>
                                     <option value="">Pilih Departemen</option>
                                     {!! $optionDepartment !!}
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Nama Pengawas Bertanggung Jawab<span class="text-danger">*</span></label>
+                                <label class="form-label">Nama Pengawas Bertanggung Jawab<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" name="nama_pengawas" class="form-control" required>
                             </div>
                             <div class="col-12 mb-3">
