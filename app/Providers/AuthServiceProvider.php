@@ -48,24 +48,24 @@ class AuthServiceProvider extends ServiceProvider
                     $abl = explode("|", $itemModule->url);
                     foreach ($abl as $ablitem) {
                         Gate::define($ablitem, function (UserModel $user) use ($itemModule) {
-                            $rawGrant = DB::table('tuser2')
-                                ->select('tuser2.pk_user_id')
-                                ->join('mpuser2groupmenu', "mpuser2groupmenu.fk_user_id", "=", "tuser2.pk_user_id")
+                            $rawGrant = DB::table('thseuser')
+                                ->select('thseuser.pk_user_id')
+                                ->join('mpuser2groupmenu', "mpuser2groupmenu.fk_user_id", "=", "thseuser.pk_user_id")
                                 ->join('vgroupmenumoduleaction', "mpuser2groupmenu.fk_groupmenu_id", "=", "vgroupmenumoduleaction.fk_groupmenu_id")
                                 ->where('vgroupmenumoduleaction.fk_moduleaction_id', $itemModule->fk_module2action_id)
-                                ->where('tuser2.pk_user_id', $user->pk_user_id)->count();
+                                ->where('thseuser.pk_user_id', $user->pk_user_id)->count();
                             return $rawGrant > 0;
                         });
                     }
                 } else {
                     if ($itemModule->url != "") {
                         Gate::define($itemModule->url, function (UserModel $user) use ($itemModule) {
-                            $rawGrant = DB::table('tuser2')
-                                ->select('tuser2.pk_user_id')
-                                ->join('mpuser2groupmenu', "mpuser2groupmenu.fk_user_id", "=", "tuser2.pk_user_id")
+                            $rawGrant = DB::table('thseuser')
+                                ->select('thseuser.pk_user_id')
+                                ->join('mpuser2groupmenu', "mpuser2groupmenu.fk_user_id", "=", "thseuser.pk_user_id")
                                 ->join('vgroupmenumoduleaction', "mpuser2groupmenu.fk_groupmenu_id", "=", "vgroupmenumoduleaction.fk_groupmenu_id")
                                 ->where('vgroupmenumoduleaction.fk_moduleaction_id', $itemModule->fk_module2action_id)
-                                ->where('tuser2.pk_user_id', $user->pk_user_id)->count();
+                                ->where('thseuser.pk_user_id', $user->pk_user_id)->count();
                             return $rawGrant > 0;
                         });
                     }
