@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Program Peduli - Superkrane</title>
+    <title>Superkrane Peduli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -152,7 +152,7 @@
             <div>
                 <span class="safety-badge mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> Safety
                     First</span>
-                <h1 class="h3 mb-1 fw-bold">PROGRAM PEDULI</h1>
+                <h1 class="h3 mb-1 fw-bold">SUPERKRANE PEDULI</h1>
                 {{-- <h5>(Pekerja Dukung Lingkungan Aman)</h5> --}}
                 <p class="mb-0 opacity-75 text-sm">Pelaporan Terhadap Bahaya K3.</p>
             </div>
@@ -181,22 +181,23 @@
                         </div>
                         <div class="card-body p-4 row g-3">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Nama Lengkap</label>
+                                <label class="form-label">Nama Lengkap<span class="text-danger">*</span></label>
                                 <input type="text" name="nama_pelapor" class="form-control"
                                     value="{{ session('full_name') }}" readonly>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">NIK</label>
+                                <label class="form-label">NIK<span class="text-danger">*</span></label>
                                 <input type="text" name="nik_pelapor" class="form-control"
                                     value="{{ session('employee_no') }}" readonly>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Posisi</label>
+                                <label class="form-label">Posisi<span class="text-danger">*</span></label>
                                 <input type="text" name="posisi" class="form-control" value="{{ session('position') }}"
                                     readonly>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Tanggal Pelaporan Bahaya</label>
+                                <label class="form-label">Tanggal Pelaporan Bahaya<span
+                                        class="text-danger">*</span></label>
                                 <input type="date" name="tgl_pelaporan" id="tgl_pelaporan" class="form-control"
                                     required>
                             </div>
@@ -209,21 +210,22 @@
                         </div>
                         <div class="card-body p-4 row g-3">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Shift</label>
+                                <label class="form-label">Shift<span class="text-danger">*</span></label>
                                 <select name="shift" class="form-select" required>
                                     <option value="">Pilih Shift</option>
                                     {!! $optionShift !!}
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Data Pelaporan</label>
+                                <label class="form-label">Data Pelaporan<span class="text-danger">*</span></label>
                                 <select name="data_pelaporan" class="form-select" required>
                                     <option value="">Pilih Data Pelaporan</option>
                                     {!! $optionDataPelaporan !!}
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Lokasi Terjadinya Bahaya</label>
+                                <label class="form-label">Lokasi Terjadinya Bahaya<span
+                                        class="text-danger">*</span></label>
                                 <select name="lokasi_bahaya_select" id="lokasi_bahaya_select" class="form-select"
                                     required>
                                     <option value="">Pilih Lokasi</option>
@@ -235,7 +237,7 @@
                                     style="display: none;">
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Kategori Bahaya</label>
+                                <label class="form-label">Kategori Bahaya<span class="text-danger">*</span></label>
                                 <select name="kategori_bahaya" id="kategori_bahaya" class="form-select" required>
                                     <option value="">Pilih Kategori</option>
                                     {!! $optionKategoriBahaya !!}
@@ -243,7 +245,8 @@
                             </div>
 
                             <div class="col-12 mb-3" id="wrapper-tindakan" style="display: none; margin-top: -8px;">
-                                <label class="form-label text-danger">Pilih Tindakan Tidak Aman</label>
+                                <label class="form-label text-danger">Pilih Tindakan Tidak Aman<span
+                                        class="text-danger">*</span></label>
                                 <select name="desc_kategori_tindakan" id="select-tindakan" class="form-select">
                                     <option value="">Pilih Detail Tindakan...</option>
                                     {!! $optionTindakanTidakAman !!}
@@ -252,7 +255,8 @@
                             </div>
 
                             <div class="col-12 mb-3" id="wrapper-kondisi" style="display: none; margin-top: -8px;">
-                                <label class="form-label text-warning">Pilih Kondisi Tidak Aman</label>
+                                <label class="form-label text-warning">Pilih Kondisi Tidak Aman<span
+                                        class="text-danger">*</span></label>
                                 <select name="desc_kategori_kondisi" id="select-kondisi" class="form-select">
                                     <option value="">Pilih Detail Kondisi...</option>
                                     {!! $optionKondisiTidakAman !!}
@@ -266,11 +270,13 @@
                             </div>
 
                             <div class="col-12 mb-3">
-                                <label class="form-label">Deskripsikan Temuan Bahaya secara spesifik</label>
+                                <label class="form-label">Deskripsikan Temuan Bahaya secara spesifik<span
+                                        class="text-danger">*</span></label>
                                 <textarea name="desc_temuan_bahaya" class="form-control" rows="3" required></textarea>
                             </div>
                             <div class="col-12 mb-2">
-                                <label class="form-label">Rekomendasi Perbaikan</label>
+                                <label class="form-label">Rekomendasi Perbaikan<span
+                                        class="text-danger">*</span></label>
                                 <textarea name="rekomendasi_perbaikan" class="form-control" rows="3"
                                     required></textarea>
                             </div>
@@ -288,8 +294,7 @@
                             <div class="upload-zone" onclick="document.getElementById('foto_input').click()">
                                 <i class="fa-solid fa-cloud-arrow-up fa-2x"></i>
                                 <p class="mb-1 fw-semibold text-sm mt-2">Ambil Foto / Pilih Gambar</p>
-                                <input type="file" id="foto_input" name="document" accept="image/*" class="d-none"
-                                    capture="environment">
+                                <input type="file" id="foto_input" name="document" class="d-none">
                             </div>
 
                             <button type="button" class="btn btn-outline-secondary w-100 mt-3 btn-sm d-none d-md-block"
@@ -342,18 +347,20 @@
                         </div>
                         <div class="card-body p-4 row g-3">
                             <div class="col-12 mb-3">
-                                <label class="form-label">Departemen Penanggung Jawab</label>
+                                <label class="form-label">Departemen Penanggung Jawab<span
+                                        class="text-danger">*</span></label>
                                 <select name="dept_penanggungjwb" class="form-select" required>
                                     <option value="">Pilih Departemen</option>
                                     {!! $optionDepartment !!}
                                 </select>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Nama Pengawas Bertanggung Jawab</label>
+                                <label class="form-label">Nama Pengawas Bertanggung Jawab<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" name="nama_pengawas" class="form-control" required>
                             </div>
                             <div class="col-12 mb-3">
-                                <label class="form-label">Due Date</label>
+                                <label class="form-label">Due Date<span class="text-danger">*</span></label>
                                 <input type="date" name="due_date" class="form-control" required>
                             </div>
                             <input type="hidden" name="status_pelaporan" value="">

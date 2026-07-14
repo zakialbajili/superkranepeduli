@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
@@ -13,6 +13,76 @@ class AuthController extends Controller
     {
         return view('backend.login');
     }
+
+    public function userLogin(Request $request)
+    {
+        // 1. Validasi input
+        $request->validate([
+            'employee_no' => 'required|string',
+            'password' => 'required|string|min:8|max:8' // Harus 8 digit DDMMYYYY
+        ]);
+
+        try {
+            $employeeNo = $request->input('employee_no');
+            $rawPassword = $request->input('password');
+
+            // 2. Konversi DDMMYYYY menjadi format SQL YYYY-MM-DD
+            $day = substr($rawPassword, 0, 2);
+            $month = substr($rawPassword, 2, 2);
+            $year = substr($rawPassword, 4, 4);
+            $formattedDate = "$year-$month-$day";
+
+            // 3. Cek ke database lokal DENGAN validasi active = 1
+            $user = DB::table('thseusermobile')
+                ->where('employee_no', $employeeNo)
+                ->where('birth_date', $formattedDate)
+                ->where('active', 1)
+                ->first();
+
+            // 4. Logika penentuan sukses/gagal
+            if ($user) {
+
+                // --- PENGAMANAN SESSION ---
+                // Regenerasi ID Session agar terhindar dari Session Fixation
+                $request->session()->regenerate();
+
+                // Buat Session Karyawan
+                session([
+                    'is_logged_in_api' => true,
+                    'employee_no' => $user->employee_no,
+                    'full_name' => $user->full_name,
+                    'position' => $user->posisi,
+                ]);
+
+                // --- UPDATE LOGIN TERAKHIR & TOKEN ---
+                // Simpan juga session id ke dalam kolom token seperti admin
+                DB::table('thseusermobile')
+                    ->where('pk_user_id', $user->pk_user_id)
+                    ->update([
+                        'token' => $request->session()->getId(),
+                        'login_last' => now()
+                    ]);
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Login Success!'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Login gagal! NIK atau Password salah, atau akun tidak aktif.'
+                ], 401);
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Terjadi kesalahan sistem.',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function AdminLogin()
     {
         return view('loginAdmin');
@@ -40,7 +110,7 @@ class AuthController extends Controller
                 LEFT JOIN `vmodule2actioninrow` on `vmodule2actioninrow`.`fk_module2action_id`=b.`fk_moduleaction_id` order by b.pk_menu_id', [Auth::user()->pk_user_id]);
             session(['menu' => $rawData]);
 
-            Auth::user()->update(['token' => Session::getId(), 'login_last'=>now()]);
+            Auth::user()->update(['token' => Session::getId(), 'login_last' => now()]);
 
             $currentpage = 'admin.notification.index';
 
@@ -56,10 +126,17 @@ class AuthController extends Controller
                     }
                 }
             }
+
+            if ($request->ajax()) {
+                return response()->json(['status' => 'success', 'redirect' => route($currentpage)]);
+            }
             return redirect()->route($currentpage);
         }
 
-        return redirect("login")->with('error', 'Username / Password Salah');
+        if ($request->ajax()) {
+            return response()->json(['status' => 'error', 'message' => 'Username / Password Salah'], 422);
+        }
+        return redirect("login/admin")->with('error', 'Username / Password Salah');
     }
     public function logout(Request $request)
     {

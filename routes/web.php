@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 */
 
 Route::get('/', function () {
-    return view('backend.login');
+    return redirect()->route('login');
 });
 
 Route::post('login-page', [AuthController::class, 'customLogin'])->name('login.custom');
@@ -29,21 +29,24 @@ Route::get('login/admin', [AuthController::class, 'AdminLogin'])->name('loginAdm
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 // HSE PROGRAM PEDULI 
-Route::get('/formreport', [HseReportController::class, 'index'])->name('hse.report.index');
-Route::post('submit-hse-report', [HseReportController::class, 'store'])->name('hse.report.store');
-Route::get('/riwayat-pelaporan', [HseReportController::class, 'history'])->name('hse.report.history');
-
-// RUTE JEMBATAN (AJAX API -> Session Web Laravel)
-Route::post('/auth/bridge', function (Request $request) {
-    // Langsung simpan semua data yang dikirim oleh AJAX (JS) ke dalam Session
-    session([
-        'api_token' => $request->input('token'),
-        'employee_no' => $request->input('employee_no'),
-        'full_name' => $request->input('full_name'),
-        'position' => $request->input('position'),
-        'is_logged_in_api' => true // Flag penanda sukses login
-    ]);
-
-    // Kembalikan respons sukses ke JavaScript
-    return response()->json(['status' => 200, 'message' => 'Session web berhasil dibuat']);
+Route::post('/login-user', [AuthController::class, 'userLogin'])->name('login.user');
+Route::middleware(['cek.login.user'])->group(function () {
+    Route::get('/formreport', [HseReportController::class, 'index']);
+    Route::post('/submit-hse-report', [HseReportController::class, 'store']);
+    Route::get('/riwayat-pelaporan', [HseReportController::class, 'history']);
 });
+
+// // RUTE JEMBATAN (AJAX API -> Session Web Laravel)
+// Route::post('/auth/bridge', function (Request $request) {
+//     // Langsung simpan semua data yang dikirim oleh AJAX (JS) ke dalam Session
+//     session([
+//         'api_token' => $request->input('token'),
+//         'employee_no' => $request->input('employee_no'),
+//         'full_name' => $request->input('full_name'),
+//         'position' => $request->input('position'),
+//         'is_logged_in_api' => true // Flag penanda sukses login
+//     ]);
+
+//     // Kembalikan respons sukses ke JavaScript
+//     return response()->json(['status' => 200, 'message' => 'Session web berhasil dibuat']);
+// });

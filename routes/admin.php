@@ -60,8 +60,9 @@ Route::resource('notification', NotificationController::class);
 //Dashboard
 Route::get('dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
 Route::post('dashboard/duedatereportdatatable', [DashboardAdminController::class, 'duedatereportdatatable'])->name('dashboard.duedatereportdatatable');
+Route::post('dashboard/rankreportdatatable', [DashboardAdminController::class, 'rankreportdatatable'])->name('dashboard.rankreportdatatable');
 Route::get('dashboard/chartcountreport', [DashboardAdminController::class, 'chartCountReport'])->name('dashboard.chartcountreport');
-Route::get('dashboard/chartstatus', [DashboardAdminController::class, 'chartStatusReport'])->name('dashboard.chartstatus');
+Route::get('dashboard/charttypedata', [DashboardAdminController::class, 'charttypedata'])->name('dashboard.charttypedata');
 Route::get('dashboard/chartkategori', [DashboardAdminController::class, 'chartKategoriReport'])->name('dashboard.chartkategori');
 Route::get('dashboard/chartjeniskondisi', [DashboardAdminController::class, 'chartJenisKondisiTidakAman'])->name('dashboard.chartjeniskondisi');
 Route::get('dashboard/chartjenistindakan', [DashboardAdminController::class, 'chartJenisTindakanTidakAman'])->name('dashboard.chartjenistindakan');

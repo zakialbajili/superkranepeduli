@@ -43,6 +43,7 @@
     <link rel="stylesheet" href="{{ asset('backend/dist/css/adminlte.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/dist/css/custom.css') }}">
 
+    @stack('styles')
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed sidebar-collapse">
@@ -94,7 +95,7 @@
 
         <!-- Main Footer -->
         <footer class="main-footer">
-            <strong>Copyright &copy; 2014-2021 <a href="">PT Master Utama
+            <strong>Copyright &copy; 2026 <a href="">PT Superkrane Mitra Utama, Tbk.
                 </a>.</strong>
             All rights reserved.
             <div class="float-right d-none d-sm-inline-block">

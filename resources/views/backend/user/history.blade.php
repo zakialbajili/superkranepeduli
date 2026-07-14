@@ -14,7 +14,7 @@
         :root {
             --primary: #059669;
             --primary-dark: #047857;
-            --warning: #f59e0b;
+            --warning: #d97706;
             --danger: #dc2626;
             --success: #16a34a;
             --bg: #f5f7fb;
@@ -143,7 +143,7 @@
             padding: 12px;
             background: #f8fafc;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .info-box i {
@@ -174,7 +174,7 @@
 
         .section-title {
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             color: var(--text);
         }
 
@@ -310,7 +310,8 @@
                         <div>
                             <small>Tanggal Laporan</small>
                             <span>
-                                {{ \Carbon\Carbon::parse($item->created_date)->format('d M Y') }}
+                                {{-- {{ \Carbon\Carbon::parse($item->created_date)->format('d M Y') }} --}}
+                                {{ \Carbon\Carbon::parse($item->tgl_pelaporan)->locale('id')->isoFormat('D MMMM Y') }}
                             </span>
                         </div>
                     </div>
@@ -319,15 +320,17 @@
                         <i class="fa-solid fa-location-dot"></i>
                         <div>
                             <small>Lokasi</small>
-                            <span>{{ $item->lokasi_bahaya }}</span>
+                            {{-- <span>{{ $item->lokasi_bahaya }}</span> --}}
+                            <span>{{ $item->lokasi_final }}</span>
                         </div>
                     </div>
 
                     <div class="info-box">
                         <i class="fa-solid fa-tag"></i>
                         <div>
-                            <small>Kategori Bahaya</small>
-                            <span>{{ $item->desc_kategori_bahaya }}</span>
+                            <small>Deskripsi Kategori Bahaya</small>
+                            {{-- <span>{{ $item->desc_kategori_bahaya }}</span> --}}
+                            <span>{{ $item->desc_final }}</span>
                         </div>
                     </div>
 
