@@ -146,70 +146,12 @@
         });
 
         // =========================================================
-        // Chart: Laporan Per Bulan (Bar) — via AJAX filter bulan
-        // =========================================================
-        var reportsIndexUrl = "{!! route('admin.reports.index') !!}";
-        var chartBulanInstance = null;
-
-        function reloadChartBulan() {
-            var s = $('#stats-filter-start').val() || '';
-            var e = $('#stats-filter-end').val() || '';
-
-            chartBoilerPlate({
-                canvasId: 'chartBulan',
-                type: 'bar',
-                url: "{!! route('admin.dashboard.chartcountreport') !!}",
-                ajaxParams: {
-                    data: {
-                        start_month: s,
-                        end_month: e,
-                    }
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                    },
-                    onClick: function (evt, elements, chart) {
-                        if (elements && elements.length > 0) {
-                            var label = chart.data.labels[elements[0].index] || '';
-                            var parts = label.split(' ');
-                            var year = parts[0];
-                            var monthNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-                            var monthIdx = monthNames.indexOf(parts[1]) + 1;
-                            if (year && monthIdx) {
-                                window.location.href = reportsIndexUrl + '?filter_tanggal=' + year + '-' + String(monthIdx).padStart(2, '0');
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Default: render current month
-        reloadChartBulan();
-
-        // Terapkan filter — reload chart + update label
-        $('#btn-apply-filter-stats').on('click', function () {
-            var s = $('#stats-filter-start').val() || '';
-            var e = $('#stats-filter-end').val() || '';
-            $('#stats-filter-label').text(s || e ? '(' + s + ' s/d ' + e + ')' : '(semua waktu)');
-            $('#modalFilterStats').modal('hide');
-            reloadChartBulan();
-        });
-        // $('#filter-tahun').on('change', reloadChartTahun);
-
-        // =========================================================
-        // Chart: Status Laporan (doughnut) — via AJAX boilerplate
+        // Chart: Type Data Laporan (doughnut) — via AJAX boilerplate
         // =========================================================
         chartBoilerPlate({
-            canvasId: 'chartStatus',
+            canvasId: 'chartTypeData',
             type: 'doughnut',
-            url: "{!! route('admin.dashboard.chartstatus') !!}",
+            url: "{!! route('admin.dashboard.charttypedata') !!}",
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -224,7 +166,7 @@
                         var idx = elements[0].index;
                         var paramKey = chart._encryptedParams && chart._encryptedParams[idx] ? chart._encryptedParams[idx] : '';
                         if (paramKey) {
-                            window.location.href = reportsIndexUrl + '?filter_status=' + encodeURIComponent(paramKey);
+                            window.location.href = reportsIndexUrl + '?type_data=' + encodeURIComponent(paramKey);
                         }
                     }
                 }
@@ -290,5 +232,61 @@
                 }
             }
         });
+        // =========================================================
+        // Chart: Laporan Per Bulan (Bar) — via AJAX filter bulan
+        // =========================================================
+        var reportsIndexUrl = "{!! route('admin.reports.index') !!}";
+        var chartBulanInstance = null;
+
+        // Default: render current month
+        reloadChartBulan();
+        
+        // Terapkan filter — reload chart + update label
+        $('#btn-apply-filter-stats').on('click', function () {
+            var s = $('#stats-filter-start').val() || '';
+            var e = $('#stats-filter-end').val() || '';
+            $('#stats-filter-label').text(s || e ? '(' + s + ' s/d ' + e + ')' : '(semua waktu)');
+            $('#modalFilterStats').modal('hide');
+            reloadChartBulan();
+        });
     });
+    function reloadChartBulan() {
+        var s = $('#stats-filter-start').val() || '';
+        var e = $('#stats-filter-end').val() || '';
+
+        chartBoilerPlate({
+            canvasId: 'chartBulan',
+            type: 'bar',
+            url: "{!! route('admin.dashboard.chartcountreport') !!}",
+            ajaxParams: {
+                data: {
+                    start_month: s,
+                    end_month: e,
+                }
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                },
+                onClick: function (evt, elements, chart) {
+                    if (elements && elements.length > 0) {
+                        var label = chart.data.labels[elements[0].index] || '';
+                        var parts = label.split(' ');
+                        var year = parts[0];
+                        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                        var monthIdx = monthNames.indexOf(parts[1]) + 1;
+                        if (year && monthIdx) {
+                            window.location.href = reportsIndexUrl + '?filter_tanggal=' + year + '-' + String(monthIdx).padStart(2, '0');
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 </script>

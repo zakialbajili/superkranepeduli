@@ -89,7 +89,7 @@
                             <h3 class="card-title"><i class="fas fa-chart-pie mr-2"></i>Status Laporan</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="chartStatus" style="height:250px;"></canvas>
+                            <canvas id="chartTypeData" style="height:250px;"></canvas>
                         </div>
                     </div>
                 </div>

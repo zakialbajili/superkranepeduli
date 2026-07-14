@@ -95,27 +95,25 @@ class DashboardAdminController extends Controller
     /**
      * AJAX: Get chart data (status laporan - doughnut).
      */
-    public function chartStatusReport()
+    public function charttypedata()
     {
-        $statusCounts = DB::table('thsepelaporanbahaya AS t')
-            ->select('t.status_pelaporan', 's.name AS status_name', DB::raw('COUNT(*) AS total'))
-            ->leftJoin('thsedata_master AS s', 't.status_pelaporan', '=', 's.pk_hsedatamaster_id')
-            ->groupBy('t.status_pelaporan', 's.name')
+        $results = DB::table('thsepelaporanbahaya AS t')
+            ->select('t.data_pelaporan', 'd.name AS data_type', DB::raw('COUNT(*) AS total'))
+            ->leftJoin('thsedata_master AS d', 't.data_pelaporan', '=', 'd.pk_hsedatamaster_id')
+            ->groupBy('t.data_pelaporan', 'd.name')
             ->get()
-            ->keyBy('status_pelaporan');
+            ->keyBy('data_pelaporan');
+        // dd($results);
 
         $labels = [];
         $data = [];
         $encryptedParams = [];
 
-        $labelMap = [5 => 'Open', 6 => 'On Progress', 7 => 'Closed'];
-
-        foreach ([5, 6, 7] as $s) {
-            $row = $statusCounts->get($s);
-            $count = $row?->total ?? 0;
-            $labels[] = $labelMap[$s] . ' (' . $count . ')';
+        foreach ($results as $item) {
+            $count = $item->total ?? 0;
+            $labels[] = $item->data_type;
             $data[] = $count;
-            $encryptedParams[] = encryptId((string) $s);
+            $encryptedParams[] = encryptId((string) $item->data_pelaporan);
         }
 
         return response()->json([
@@ -327,8 +325,8 @@ class DashboardAdminController extends Controller
                 DB::raw('COUNT(pk_hsepelaporanbahaya_id) AS jumlah'),
                 DB::raw('ROW_NUMBER() OVER (ORDER BY COUNT(pk_hsepelaporanbahaya_id) DESC, MAX(tgl_pelaporan) DESC) AS peringkat')
             )
-            ->when($startDate, fn ($q) => $q->whereDate('tgl_pelaporan', '>=', $startDate))
-            ->when($endDate, fn ($q) => $q->whereDate('tgl_pelaporan', '<=', $endDate))
+            ->when($startDate, fn($q) => $q->whereDate('tgl_pelaporan', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('tgl_pelaporan', '<=', $endDate))
             ->groupBy('employee_no');
 
         // Total records: jumlah unique employee yang pernah melapor

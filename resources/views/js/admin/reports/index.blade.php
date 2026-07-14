@@ -1,11 +1,20 @@
 <script>
     $(function () {
         // Cek filter_status dari URL (dari dashboard)
+        var filterTypeData = '{{ $filterTypeData ?? '' }}';
         var filterStatus = '{{ $filterStatus ?? '' }}';
         var filterKategori = '{{ $filterKategori ?? '' }}';
         var filterTanggal = '{{ $filterTanggal ?? '' }}';
 
         // ===== HANDLE FILTERING FROM DASHBOARD =====
+        if (filterTypeData !== '') {
+            $('#data_pelaporan option').each(function () {
+                if ($(this).val() === filterTypeData) {
+                    $('#data_pelaporan').val($(this).val());
+                    return false;
+                }
+            });
+        }
         if (filterStatus !== '') {
             $('#status_pelaporan option').each(function () {
                 if ($(this).val() === filterStatus) {

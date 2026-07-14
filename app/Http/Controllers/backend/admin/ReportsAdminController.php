@@ -44,6 +44,7 @@ class ReportsAdminController extends Controller
         $dataLokasi = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Lokasi']);
         $dataDepartemen = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Departemen']);
 
+        $filterTypeData = $request->get('type_data', '');
         $filterStatus = $request->get('filter_status', '');
         $filterKategori = $request->get('filter_kategori', '');
         $filterTanggal = $request->get('filter_tanggal', '');
@@ -57,6 +58,7 @@ class ReportsAdminController extends Controller
             'dataLokasi',
             'dataDepartemen',
             'filterStatus',
+            'filterTypeData',
             'filterKategori',
             'filterTanggal'
         ));
