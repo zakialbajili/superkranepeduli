@@ -301,6 +301,7 @@ class UserController extends Controller
             ->get();
         $datauser = DB::table('thseuser')
             ->select(['pk_user_id', 'name', 'active', 'employee_no'])
+            ->where('pk_user_id', $userid)
             ->first();
 
         $datauserrole = DB::table('mpuser2role')

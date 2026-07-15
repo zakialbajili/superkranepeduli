@@ -69,11 +69,12 @@
                     class="brand-image img-circle elevation-3" style="opacity: .8"> --}}
                 <div class="brand-image img-circle elevation-3 d-flex align-items-center justify-content-center"
                     style="width:30px;height:35px;background:#049a90;opacity:.8;">
-                    <i class="fas fa-cog text-white"></i>
+                    <!-- <i class="fas fa-cog text-white"></i> -->
+                     <i class="fas fa-hard-hat text-white"></i>
                 </div>
 
 
-                <span class="brand-text font-weight-light">SYSTEM</span>
+                <span class="brand-text font-weight-semibold">SUPERKRANE PEDULI</span>
             </a>
 
             <!-- Sidebar -->
