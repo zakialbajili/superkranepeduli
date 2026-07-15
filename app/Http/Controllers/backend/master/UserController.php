@@ -9,6 +9,7 @@ use App\Models\RoleModel;
 use App\Models\UserModel;
 use App\Models\UserGroupMenuModel;
 use App\Models\UserRoleModel;
+use Exception;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -155,6 +156,115 @@ class UserController extends Controller
         }
 
     }
+    //===================================
+    // <<<<< Handle user HSE Mobile >>>>
+    //===================================
+    public function register(Request $request)
+    {
+        $request->validate([
+            'employee_no' => ['required', 'string'],
+            'full_name' => ['required', 'string'],
+            'birth_date' => 'required',
+            'active' => 'required',
+        ], [
+            'employee_no.required' => 'NIK Karyawan harus diisi dengan benar',
+            'employee_no.string' => 'NIK Karyawan harus diisi dengan benar',
+            'full_name.required' => 'Nama Karyawan harus diisi dengan benar',
+            'full_name.string' => 'Nama Karyawan harus diisi dengan benar',
+            'birth_date.required' => 'Tanggal Lahir Karyawan harus diisi dengan benar',
+            'active.required' => 'Status Karyawan harus diisi dengan benar',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $LogActivity = [];
+            $LogActivity['NEW']['USER'] = [
+                'full_name' => $request->full_name,
+                'employee_no' => $request->employee_no,
+                'created_date' => $request->created_date,
+                'created_by' => $request->created_by,
+            ];
+            $isactive = boolval($request->active);
+            DB::table('thseusermobile')->insert(
+                [
+                    'full_name' => $request->full_name,
+                    'employee_no' => $request->employee_no,
+                    'birth_date' => !empty($request->birth_date) ? date('Y-m-d', strtotime($request->birth_date)) : null,
+                    'active' => $isactive,
+                    'created_date' => $request->created_date,
+                    'created_by' => $request->created_by,
+                ]
+            );
+            DB::commit();
+            activity()
+                ->withProperties($LogActivity)
+                ->log('Add - ' . Route::currentRouteName());
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil menambahkan data user!'
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menambahkan data user!',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+
+    }
+    public function edituser(Request $request)
+    {
+        try {
+            $body = $request->post();
+            $emp_no = $request->get('emp_no') ?? null;
+            if (empty($emp_no)) {
+                throw new Exception('Data karyawan tidak dapat ditemukan!');
+            }
+            DB::beginTransaction();
+            $isExist = (array) DB::table('thseusermobile')
+                ->where('employee_no', $emp_no)
+                ->exists();
+            if (empty($isExist)) {
+                throw new Exception('Data karyawan tidak dapat ditemukan!');
+            }
+            $payloadUpdate = [];
+            foreach ($body as $key => $value) {
+                if ($key == 'birth_date') {
+                    $payloadUpdate[$key] = date('Y-m-d', strtotime($value));
+                } else if ($key == 'active') {
+                    $payloadUpdate[$key] = boolval($value);
+                }
+                else if ($key == 'updated_date') {
+                    $payloadUpdate[$key] = date('Y-m-d H:i:s', strtotime($value));
+                } else {
+                    $payloadUpdate[$key] = $value;
+                }
+            }
+            $LogActivity['UPDATE']['USER'] = $payloadUpdate;
+            DB::table('thseusermobile')
+                ->where('employee_no', $emp_no)
+                ->update($payloadUpdate);
+            DB::commit();
+            activity()
+                ->withProperties($LogActivity)
+                ->log('Update - ' . Route::currentRouteName());
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil memperbarui data user!'
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memperbarui data user!',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+    //===================================
+    // <<<<< Handle user HSE Mobile >>>>
+    //===================================
 
     /**
      * Display the specified resource.

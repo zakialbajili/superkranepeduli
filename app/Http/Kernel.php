@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'accessroute' => \App\Http\Middleware\AccessRoute::class,
         'XSS' => \App\Http\Middleware\XSS::class,
         'cek.login.user' => \App\Http\Middleware\CekLoginUser::class,
+        'api.key' => \App\Http\Middleware\VerifyApiKey::class,
     ];
 }
