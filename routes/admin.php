@@ -9,6 +9,7 @@ use App\Http\Controllers\backend\admin\ReportsAdminController;
 use App\Http\Controllers\backend\master\RoleController;
 use App\Http\Controllers\backend\master\TaskController;
 use App\Http\Controllers\backend\master\UserController;
+use App\Http\Controllers\backend\master\MobileUserController;
 use App\Http\Controllers\UtilityController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,11 @@ Route::put('users/change-status', [UserController::class, 'changestatus'])->name
 Route::post('users/add-role', [UserController::class, 'addrole'])->name('users.add-role');
 Route::post('users/storeToken', [UserController::class, 'storeToken'])->name('storeToken');
 Route::resource('users', UserController::class);
+
+// MOBILE USER
+Route::post('user-mobile/datatables', [MobileUserController::class, 'datatables'])->name('user-mobile.datatables');
+Route::put('user-mobile/change-status', [MobileUserController::class, 'changestatus'])->name('user-mobile.change-status');
+Route::resource('user-mobile', MobileUserController::class);
 
 // MODULE
 Route::resource('modules', ModuleController::class);
