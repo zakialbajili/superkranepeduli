@@ -15,43 +15,43 @@ class HseReportController extends Controller
     {
 
         $optionShift = '';
-        $listShift = DB::table('thsedata_master')->select('*')->where('type', '=', 'Type Shift')->get();
+        $listShift = DB::table('thsedata_master')->select('*')->where('type', '=', 'Type Shift')->where('param_2', '=', 1)->get();
         foreach ($listShift as $item) {
             $optionShift .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionDataPelaporan = '';
-        $listDataPelaporan = DB::table('thsedata_master')->select('*')->where('type', '=', 'Data Pelaporan')->get();
+        $listDataPelaporan = DB::table('thsedata_master')->select('*')->where('type', '=', 'Data Pelaporan')->where('param_2', '=', 1)->get();
         foreach ($listDataPelaporan as $item) {
             $optionDataPelaporan .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionLokasi = '';
-        $listLokasi = DB::table('thsedata_master')->select('*')->where('type', '=', 'Lokasi')->get();
+        $listLokasi = DB::table('thsedata_master')->select('*')->where('type', '=', 'Lokasi')->where('param_2', '=', 1)->get();
         foreach ($listLokasi as $item) {
             $optionLokasi .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionKategoriBahaya = '';
-        $listKategoriBahaya = DB::table('thsedata_master')->select('*')->where('type', '=', 'Kategori Bahaya')->get();
+        $listKategoriBahaya = DB::table('thsedata_master')->select('*')->where('type', '=', 'Kategori Bahaya')->where('param_2', '=', 1)->get();
         foreach ($listKategoriBahaya as $item) {
             $optionKategoriBahaya .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionDepartment = '';
-        $listDepartment = DB::table('thsedata_master')->select('*')->where('type', '=', 'Departemen')->get();
+        $listDepartment = DB::table('thsedata_master')->select('*')->where('type', '=', 'Departemen')->where('param_2', '=', 1)->get();
         foreach ($listDepartment as $item) {
             $optionDepartment .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionTindakanTidakAman = '';
-        $listTindakanTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Tindakan Tidak Aman')->get();
+        $listTindakanTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Tindakan Tidak Aman')->where('param_2', '=', 1)->get();
         foreach ($listTindakanTidakAman as $item) {
             $optionTindakanTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }
 
         $optionKondisiTidakAman = '';
-        $listKondisiTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Kondisi Tidak Aman')->get();
+        $listKondisiTidakAman = DB::table('thsedata_master')->select('*')->where('type', '=', 'Jenis Kondisi Tidak Aman')->where('param_2', '=', 1)->get();
         foreach ($listKondisiTidakAman as $item) {
             $optionKondisiTidakAman .= "<option value='" . encryptId($item->pk_hsedatamaster_id) . "'>$item->name</option>";
         }

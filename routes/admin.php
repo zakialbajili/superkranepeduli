@@ -10,6 +10,7 @@ use App\Http\Controllers\backend\master\RoleController;
 use App\Http\Controllers\backend\master\TaskController;
 use App\Http\Controllers\backend\master\UserController;
 use App\Http\Controllers\backend\master\MobileUserController;
+use App\Http\Controllers\backend\master\MasterDataController;
 use App\Http\Controllers\UtilityController;
 use Illuminate\Support\Facades\Route;
 
@@ -76,5 +77,11 @@ Route::get('dashboard/chartjenistindakan', [DashboardAdminController::class, 'ch
 Route::post('reports/datatable', [ReportsAdminController::class, 'datatable'])->name('reports.datatable');
 Route::post('reports/exportexcel', [ReportsAdminController::class, 'exportexcel'])->name('reports.exportexcel');
 Route::resource('reports', ReportsAdminController::class);
+
+// MASTER - Data
+Route::post('masterdata/datatable', [MasterDataController::class, 'datatable'])->name('masterdata.datatable');
+Route::post('masterdata/toggle-active', [MasterDataController::class, 'toggleActive'])->name('masterdata.toggleActive');
+Route::resource('masterdata', MasterDataController::class);
+
 
 
