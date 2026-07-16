@@ -29,7 +29,13 @@
                             <form action="" id="filter-data">
                                 <div class="form-group">
                                     <label for="tgl_pelaporan">Tanggal Pelaporan</label>
-                                    <input type="text" name="tgl_pelaporan" id="tgl_pelaporan" class="form-control" placeholder="Pilih rentang tanggal">
+                                    <input type="text" name="tgl_pelaporan" id="tgl_pelaporan" class="form-control"
+                                        placeholder="Pilih rentang tanggal">
+                                </div>
+                                <div class="form-group">
+                                    <label for="due_date">Due Date</label>
+                                    <input type="text" name="due_date" id="due_date" class="form-control"
+                                        placeholder="Pilih rentang tanggal">
                                 </div>
                                 <div class="form-group">
                                     <label for="shift">Shift</label>
@@ -46,6 +52,13 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label for="lokasi_bahaya">Lokasi</label>
+                                    <select name="lokasi_bahaya" id="lokasi_bahaya" class="form-control custom-select">
+                                        <option value="">Pilih Lokasi</option>
+                                        {!! $dataLokasi !!}
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label for="kategori_bahaya">Kategori Bahaya</label>
                                     <select name="kategori_bahaya" id="kategori_bahaya" class="form-control custom-select">
                                         <option value="">Pilih Kategori</option>
@@ -53,10 +66,27 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label for="desc_kategori_bahaya">Jenis Bahaya</label>
+                                    <select name="desc_kategori_bahaya" id="desc_kategori_bahaya"
+                                        class="form-control custom-select">
+                                        <option value="">Pilih Jenis Bahaya</option>
+                                        {!! $dataJenisBahaya !!}
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label for="status_pelaporan">Status Laporan</label>
-                                    <select name="status_pelaporan" id="status_pelaporan" class="form-control custom-select">
+                                    <select name="status_pelaporan" id="status_pelaporan"
+                                        class="form-control custom-select">
                                         <option value="">Pilih Status</option>
                                         {!! $dataStatus !!}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dept_penanggungjwb">Dept. Penanggung Jawab</label>
+                                    <select name="dept_penanggungjwb" id="dept_penanggungjwb"
+                                        class="form-control custom-select">
+                                        <option value="">Pilih Departemen</option>
+                                        {!! $dataDepartemen !!}
                                     </select>
                                 </div>
                                 <div class="d-flex gap-1">
@@ -87,15 +117,21 @@
                                 <table id="dataTable" class="table table-striped display" style="width: 100%">
                                     <thead>
                                         <tr>
-                                            <th>No. Karyawan</th>
-                                            <th>Nama Pelapor</th>
-                                            <th>Posisi</th>
-                                            <th>Tanggal</th>
-                                            <th>Lokasi</th>
-                                            <th>Shift</th>
-                                            <th>Data Pelaporan</th>
-                                            <th>Kategori Bahaya</th>
-                                            <th>Status</th>
+                                            <th style="min-width: 100px;">No. Karyawan</th>
+                                            <th style="min-width: 100px;">Nama Pelapor</th>
+                                            <th style="min-width: 100px;">Posisi</th>
+                                            <th style="min-width: 100px;">Tanggal</th>
+                                            <th style="min-width: 100px;">Lokasi</th>
+                                            <th style="min-width: 70px;">Shift</th>
+                                            <th style="min-width: 100px;">Data Pelaporan</th>
+                                            <th style="min-width: 120px;">Kategori Bahaya</th>
+                                            <th style="min-width: 150px;">Jenis Bahaya</th>
+                                            <th style="min-width: 200px;">Deskripsi Temuan</th>
+                                            <th style="min-width: 200px;">Rekomendasi</th>
+                                            <th style="min-width: 150px;">Dept. Penanggung Jawab</th>
+                                            <th style="min-width: 100px;">Pengawas</th>
+                                            <th style="min-width: 100px;">Due Date</th>
+                                            <th style="min-width: 100px;">Status</th>
                                             <th style="min-width: 100px;">Aksi</th>
                                         </tr>
                                     </thead>

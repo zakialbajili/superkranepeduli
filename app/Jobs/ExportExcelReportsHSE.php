@@ -14,6 +14,8 @@ use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\ModuleTraits;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class ExportExcelReportsHSE implements ShouldQueue
 {
@@ -22,6 +24,7 @@ class ExportExcelReportsHSE implements ShouldQueue
     private $user;
     private $data;
     private $dataHeader;
+    private const CHUNK_SIZE = 1000;
 
     /**
      * Create a new job instance.
@@ -39,7 +42,6 @@ class ExportExcelReportsHSE implements ShouldQueue
     {
         $datafilter = $this->filteredData;
 
-        // Jika tidak ada datafilter yang valid, ambil semua data
         if (!$datafilter || !is_array($datafilter) || empty(array_filter($datafilter))) {
             $datafilter = [];
         }
@@ -47,17 +49,23 @@ class ExportExcelReportsHSE implements ShouldQueue
         $table = 'thsepelaporanbahaya';
         $selectColumn = [
             't.employee_no AS Employee No',
-            't.full_name as Full Name',
-            't.posisi as Posisi',
-            't.tgl_pelaporan as Tanggal Pelaporan',
-            'lokasi_m.name AS Lokasi Bahaya',
+            't.full_name AS Full Name',
+            't.posisi AS Posisi',
+            't.tgl_pelaporan AS Tanggal Pelaporan',
+            DB::raw('COALESCE(lokasi_m.name, t.lokasi_bahaya) AS "Lokasi Bahaya"'),
             'shift_m.name AS Shift',
             'data_m.name AS Data Pelaporan',
             'kat_m.name AS Kategori Bahaya',
+            DB::raw('COALESCE(jenis_m.name, t.desc_kategori_bahaya) AS "Jenis Bahaya"'),
+            't.desc_temuan_bahaya AS Deskripsi Temuan',
+            't.rekomendasi_perbaikan AS Rekomendasi',
+            'dept_m.name AS Dept. Penanggung Jawab',
+            't.nama_pengawas AS Pengawas',
+            't.due_date AS Due Date',
             'status_m.name AS Status Pelaporan',
-            'dept_m.name AS Departemen Penanggungjawab',
         ];
-        $data = DB::table("$table AS t")
+
+        $queryBuilder = DB::table("$table AS t")
             ->select($selectColumn)
             ->leftJoin('thsedata_master AS shift_m', 't.shift', '=', 'shift_m.pk_hsedatamaster_id')
             ->leftJoin('thsedata_master AS data_m', 't.data_pelaporan', '=', 'data_m.pk_hsedatamaster_id')
@@ -65,6 +73,7 @@ class ExportExcelReportsHSE implements ShouldQueue
             ->leftJoin('thsedata_master AS status_m', 't.status_pelaporan', '=', 'status_m.pk_hsedatamaster_id')
             ->leftJoin('thsedata_master AS lokasi_m', 't.lokasi_bahaya', '=', 'lokasi_m.pk_hsedatamaster_id')
             ->leftJoin('thsedata_master AS dept_m', 't.dept_penanggungjwb', '=', 'dept_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS jenis_m', 't.desc_kategori_bahaya', '=', 'jenis_m.pk_hsedatamaster_id')
             ->where(function ($query) use ($datafilter) {
                 if (!empty($datafilter["tgl_pelaporan"])) {
                     $datadate = explode(' - ', $datafilter["tgl_pelaporan"]);
@@ -86,29 +95,89 @@ class ExportExcelReportsHSE implements ShouldQueue
                     $query->where('t.data_pelaporan', decryptId($datafilter["data_pelaporan"]));
                 }
                 if (!empty($datafilter["lokasi_bahaya"])) {
-                    $query->where('t.lokasi_bahaya', decryptId($datafilter["lokasi_bahaya"]));
+                    $lokasiVal = $datafilter["lokasi_bahaya"];
+                    $query->where(function ($q) use ($lokasiVal) {
+                        $q->where('t.lokasi_bahaya', $lokasiVal)
+                          ->orWhere('lokasi_m.name', $lokasiVal);
+                    });
                 }
                 if (!empty($datafilter["dept_penanggungjwb"])) {
                     $query->where('t.dept_penanggungjwb', decryptId($datafilter["dept_penanggungjwb"]));
                 }
+                if (!empty($datafilter["desc_kategori_bahaya"])) {
+                    $jenisVal = $datafilter["desc_kategori_bahaya"];
+                    $query->where(function ($q) use ($jenisVal) {
+                        $q->where('t.desc_kategori_bahaya', $jenisVal)
+                          ->orWhere('jenis_m.name', $jenisVal);
+                    });
+                }
+                if (!empty($datafilter["due_date"])) {
+                    $datadate = explode(' - ', $datafilter["due_date"]);
+                    if (count($datadate) > 1) {
+                        $query->where('t.due_date', ">=", $datadate[0]);
+                        $query->where('t.due_date', "<=", $datadate[1]);
+                    }
+                }
             })
-            ->orderBy("t.tgl_pelaporan", 'desc')
-            ->get();
+            ->orderBy("t.tgl_pelaporan", 'desc');
 
-        if ($data->isEmpty()) {
+        $totalCount = (clone $queryBuilder)->count();
+
+        if ($totalCount == 0) {
             Log::warning('ExportExcelReportsHSE: Data kosong, tidak ada yang diexport.', [
                 'filter' => $datafilter,
             ]);
             return;
         }
 
-        $dataHeader = array_keys(json_decode(json_encode($data[0]), true));
         $now = Carbon::now()->getTimestamp();
         $employeeNo = $this->user->employee_no ?? $this->user->name ?? 'user';
-        $filename = 'HSEReports ' . $employeeNo . '_' . $now . '.xlsx';
+        $totalChunks = ceil($totalCount / self::CHUNK_SIZE);
 
-        Excel::store(new ExcelExport($data, $dataHeader), $filename, 'public');
+        // Ambil header dari row pertama
+        $firstRow = (clone $queryBuilder)->take(1)->get();
+        $dataHeader = array_keys(json_decode(json_encode($firstRow->first()), true));
 
-        $this->sendNotificationFileCreated($this->user->pk_user_id, 'Export ' . $filename . ' Berhasil Dibuat', $filename);
+        // Multi-chunk → export per chunk, lalu zip
+        $tempDir = storage_path('app/tmp_export_' . $now);
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $chunkFiles = [];
+        for ($i = 0; $i < $totalChunks; $i++) {
+            $chunkData = (clone $queryBuilder)
+                ->skip($i * self::CHUNK_SIZE)
+                ->take(self::CHUNK_SIZE)
+                ->get();
+
+            if ($chunkData->isEmpty()) {
+                continue;
+            }
+
+            $chunkFile = $tempDir . "/Part_" . ($i + 1) . ".xlsx";
+            Excel::store(new ExcelExport($chunkData, $dataHeader, "Part " . ($i + 1)), "tmp_export_{$now}/Part_" . ($i + 1) . ".xlsx", 'local');
+            $chunkFiles[] = $chunkFile;
+        }
+
+        // Zip semua chunk
+        $zipFilename = 'HSEReports_' . $employeeNo . '_' . $now . '.zip';
+        $zipPath = public_path('storage/' . $zipFilename);
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            foreach ($chunkFiles as $idx => $file) {
+                $zip->addFile($file, 'Part_' . ($idx + 1) . '.xlsx');
+            }
+            $zip->close();
+        }
+
+        // Cleanup temp files
+        foreach ($chunkFiles as $file) {
+            @unlink($file);
+        }
+        @rmdir($tempDir);
+
+        $this->sendNotificationFileCreated($this->user->pk_user_id, 'Export ' . $zipFilename . ' Berhasil Dibuat', $zipFilename);
     }
 }

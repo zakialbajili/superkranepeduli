@@ -5,6 +5,7 @@
         var filterStatus = '{{ $filterStatus ?? '' }}';
         var filterKategori = '{{ $filterKategori ?? '' }}';
         var filterTanggal = '{{ $filterTanggal ?? '' }}';
+        var filterJenis = '{{ $filterJenis ?? '' }}';
 
         // ===== HANDLE FILTERING FROM DASHBOARD =====
         if (filterTypeData !== '') {
@@ -33,6 +34,14 @@
             });
         }
 
+        if (filterJenis !== '') {
+            $('#desc_kategori_bahaya option').each(function () {
+                if ($(this).val() === filterJenis) {
+                    $('#desc_kategori_bahaya').val($(this).val());
+                    return false;
+                }
+            });
+        }
         if (filterTanggal !== '') {
             // filter_tanggal format: YYYY-MM
             var parts = filterTanggal.split('-');
@@ -55,14 +64,13 @@
                 d.data = formData;
             },
             [[0, 'desc']],
-            [{
-                "targets": 9,
-                "orderable": false
-            }]
+            [
+                { "targets": 15, "orderable": false },
+            ]
         );
 
         // Auto-reload jika ada filter dari URL
-        if (filterStatus || filterKategori || filterTanggal) {
+        if (filterStatus || filterKategori || filterTanggal || filterJenis) {
             obj_report.ajax.reload();
         }
 
@@ -82,6 +90,22 @@
             $(this).val('');
         });
 
+        // Date Range Picker for Due Date
+        $('#due_date').daterangepicker({
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            autoUpdateInput: false
+        });
+
+        $('#due_date').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $('#due_date').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+
         // Filter button
         $('#btn-filter').on('click', function () {
             obj_report.ajax.reload();
@@ -96,15 +120,24 @@
 
         // Export data to excel
         $("#btn-export").click(function () {
+            $.LoadingOverlay("show");
             $.ajax({
                 type: 'post',
                 url: "{{ route('admin.reports.exportexcel') }}",
                 data: {
                     data: $('#filter-data').serializeArrayFormJSON()
                 },
+                success: function (response) {
+                    $.LoadingOverlay("hide");
+                    if (response.status == "success") {
+                        toastr.info(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
                 error: function (xhr, ajaxOptions, thrownError) {
                     $.LoadingOverlay("hide");
-                    toastr.error(xhr.responseJSON.message);
+                    toastr.error(xhr.responseJSON?.message || 'Gagal mengekspor data');
                 }
             })
         })

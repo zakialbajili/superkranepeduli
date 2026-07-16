@@ -202,7 +202,7 @@
         });
 
         // =========================================================
-        // Chart: Jenis Kondisi Tidak Aman (pie) — via AJAX
+        // Chart: Jenis Kondisi Tidak Aman (doughnut) — via AJAX
         // =========================================================
         chartBoilerPlate({
             canvasId: 'chartJenisKondisi',
@@ -212,13 +212,24 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, padding: 6, font: { size: 10 } }
+                    }
+                },
+                onClick: function (evt, elements, chart) {
+                    if (elements && elements.length > 0) {
+                        var label = chart.data.labels[elements[0].index] || '';
+                        if (label) {
+                            window.location.href = reportsIndexUrl + '?filter_jenis=' + encodeURIComponent(label) + '&filter_kategori=' + encodeURIComponent('{{ encryptId("3") }}');
+                        }
+                    }
                 }
             }
         });
 
         // =========================================================
-        // Chart: Jenis Tindakan Tidak Aman (pie) — via AJAX
+        // Chart: Jenis Tindakan Tidak Aman (doughnut) — via AJAX
         // =========================================================
         chartBoilerPlate({
             canvasId: 'chartJenisTindakan',
@@ -228,7 +239,18 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, padding: 6, font: { size: 10 } }
+                    }
+                },
+                onClick: function (evt, elements, chart) {
+                    if (elements && elements.length > 0) {
+                        var label = chart.data.labels[elements[0].index] || '';
+                        if (label) {
+                            window.location.href = reportsIndexUrl + '?filter_jenis=' + encodeURIComponent(label) + '&filter_kategori=' + encodeURIComponent('{{ encryptId("4") }}');
+                        }
+                    }
                 }
             }
         });
