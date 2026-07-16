@@ -59,7 +59,8 @@ class AuthController extends Controller
                 DB::table('thseusermobile')
                     ->where('pk_user_id', $user->pk_user_id)
                     ->update([
-                        'token' => $request->session()->getId(),
+                        'token' => Session::getId(),
+                        // 'token' => $request->session()->getId(),
                         'login_last' => now()
                     ]);
 

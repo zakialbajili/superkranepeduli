@@ -30,7 +30,7 @@ Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
 // HSE PROGRAM PEDULI 
 Route::post('/login-user', [AuthController::class, 'userLogin'])->name('login.user');
-Route::middleware(['cek.login.user'])->group(function () {
+Route::middleware(['cek.login.user', 'ssouser'])->group(function () {
     Route::get('/formreport', [HseReportController::class, 'index']);
     Route::post('/submit-hse-report', [HseReportController::class, 'store']);
     Route::get('/riwayat-pelaporan', [HseReportController::class, 'history']);

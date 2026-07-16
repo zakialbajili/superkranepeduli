@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>System Apps</title>
+    <title>Superkrane Peduli</title>
 
     <!-- Bootstrap 5.1 -->
     <link href="{{ asset('backend/dist/js/smu/bootstrap.min.css') }}" rel="stylesheet">
