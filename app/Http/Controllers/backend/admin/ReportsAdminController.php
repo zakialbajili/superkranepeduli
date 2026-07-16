@@ -41,13 +41,49 @@ class ReportsAdminController extends Controller
         $dataKategori = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Kategori Bahaya']);
         $dataStatus = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Status Laporan']);
         $dataDataPelaporan = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Data Pelaporan']);
-        $dataLokasi = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Lokasi']);
         $dataDepartemen = $this->generateselect('thsedata_master', 'pk_hsedatamaster_id', 'name', ['type' => 'Departemen']);
+
+        // Lokasi: master data + nilai other dari thsepelaporanbahaya
+        $masterLokasi = DB::table('thsedata_master')
+            ->select('name AS label')
+            ->where('type', 'Lokasi')
+            ->orderBy('name')
+            ->get();
+        $otherLokasi = DB::table('thsepelaporanbahaya')
+            ->select(DB::raw("DISTINCT lokasi_bahaya AS label"))
+            ->whereNotNull('lokasi_bahaya')
+            ->whereRaw("lokasi_bahaya NOT REGEXP '^[0-9]+$'")
+            ->where('lokasi_bahaya', '!=', '')
+            ->get();
+        $allLokasi = $masterLokasi->concat($otherLokasi)->unique('label')->sortBy('label');
+        $dataLokasi = '';
+        foreach ($allLokasi as $item) {
+            $dataLokasi .= '<option value="' . e($item->label) . '">' . e($item->label) . '</option>';
+        }
+
+        // Jenis Bahaya: master data (Kondisi + Tindakan) + nilai other dari thsepelaporanbahaya
+        $masterJenis = DB::table('thsedata_master')
+            ->select('name AS label')
+            ->whereIn('type', ['Jenis Kondisi Tidak Aman', 'Jenis Tindakan Tidak Aman'])
+            ->orderBy('name')
+            ->get();
+        $otherJenis = DB::table('thsepelaporanbahaya')
+            ->select(DB::raw("DISTINCT desc_kategori_bahaya AS label"))
+            ->whereNotNull('desc_kategori_bahaya')
+            ->whereRaw("desc_kategori_bahaya NOT REGEXP '^[0-9]+$'")
+            ->where('desc_kategori_bahaya', '!=', '')
+            ->get();
+        $allJenis = $masterJenis->concat($otherJenis)->unique('label')->sortBy('label');
+        $dataJenisBahaya = '';
+        foreach ($allJenis as $item) {
+            $dataJenisBahaya .= '<option value="' . e($item->label) . '">' . e($item->label) . '</option>';
+        }
 
         $filterTypeData = $request->get('type_data', '');
         $filterStatus = $request->get('filter_status', '');
         $filterKategori = $request->get('filter_kategori', '');
         $filterTanggal = $request->get('filter_tanggal', '');
+        $filterJenis = $request->get('filter_jenis', '');
 
         return view('backend.master.admin.reports.index', compact(
             'headerparam',
@@ -57,10 +93,12 @@ class ReportsAdminController extends Controller
             'dataDataPelaporan',
             'dataLokasi',
             'dataDepartemen',
+            'dataJenisBahaya',
             'filterStatus',
             'filterTypeData',
             'filterKategori',
-            'filterTanggal'
+            'filterTanggal',
+            'filterJenis'
         ));
     }
 
@@ -80,6 +118,12 @@ class ReportsAdminController extends Controller
             'shift',
             'data_pelaporan',
             'kategori_bahaya',
+            'desc_kategori_bahaya',
+            'desc_temuan_bahaya',
+            'rekomendasi_perbaikan',
+            'dept_penanggungjwb',
+            'nama_pengawas',
+            'due_date',
             'status_pelaporan',
         ];
         $table = 'thsepelaporanbahaya';
@@ -94,6 +138,12 @@ class ReportsAdminController extends Controller
             'shift_m.name AS shift',
             'data_m.name AS data_pelaporan',
             'kat_m.name AS kategori_bahaya',
+            DB::raw("COALESCE(jenis_m.name, t.desc_kategori_bahaya) AS desc_kategori_bahaya"),
+            't.desc_temuan_bahaya',
+            't.rekomendasi_perbaikan',
+            'dept_m.name AS dept_penanggungjwb',
+            't.nama_pengawas',
+            't.due_date',
             'status_m.name AS status_pelaporan',
         ];
         $searchColumn = [
@@ -105,7 +155,15 @@ class ReportsAdminController extends Controller
             'shift_m.name',
             'data_m.name',
             'kat_m.name',
+            'jenis_m.name',
             'status_m.name',
+            't.desc_temuan_bahaya',
+            't.rekomendasi_perbaikan',
+            'dept_m.name',
+            't.nama_pengawas',
+            't.due_date',
+            't.lokasi_bahaya',
+            't.desc_kategori_bahaya',
         ];
         $order = [$columns[0], 'desc'];
 
@@ -115,12 +173,13 @@ class ReportsAdminController extends Controller
 
         $queryBuilder = DB::table("$table AS t")
             ->select($selectColumn)
-            ->leftJoin('thsedata_master AS shift_m','t.shift' ,'=', 'shift_m.pk_hsedatamaster_id')
-            ->leftJoin('thsedata_master AS data_m','t.data_pelaporan' ,'=', 'data_m.pk_hsedatamaster_id')
-            ->leftJoin('thsedata_master AS kat_m','t.kategori_bahaya' ,'=', 'kat_m.pk_hsedatamaster_id')
-            ->leftJoin('thsedata_master AS status_m','t.status_pelaporan' ,'=', 'status_m.pk_hsedatamaster_id')
-            ->leftJoin('thsedata_master AS lokasi_m','t.lokasi_bahaya' ,'=', 'lokasi_m.pk_hsedatamaster_id')
-            ->leftJoin('thsedata_master AS dept_m','t.dept_penanggungjwb' ,'=', 'dept_m.pk_hsedatamaster_id');
+            ->leftJoin('thsedata_master AS shift_m', 't.shift', '=', 'shift_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS data_m', 't.data_pelaporan', '=', 'data_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS kat_m', 't.kategori_bahaya', '=', 'kat_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS status_m', 't.status_pelaporan', '=', 'status_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS lokasi_m', 't.lokasi_bahaya', '=', 'lokasi_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS dept_m', 't.dept_penanggungjwb', '=', 'dept_m.pk_hsedatamaster_id')
+            ->leftJoin('thsedata_master AS jenis_m', 't.desc_kategori_bahaya', '=', 'jenis_m.pk_hsedatamaster_id');
 
         $alldata = (clone $queryBuilder)->count();
 
@@ -155,10 +214,28 @@ class ReportsAdminController extends Controller
                     $query->where('t.data_pelaporan', decryptForNumber($datafilter["data_pelaporan"]));
                 }
                 if (!empty($datafilter["lokasi_bahaya"])) {
-                    $query->where('t.lokasi_bahaya', decryptForNumber($datafilter["lokasi_bahaya"]));
+                    $lokasiVal = $datafilter["lokasi_bahaya"];
+                    $query->where(function ($q) use ($lokasiVal) {
+                        $q->where('t.lokasi_bahaya', $lokasiVal)
+                          ->orWhere('lokasi_m.name', $lokasiVal);
+                    });
                 }
                 if (!empty($datafilter["dept_penanggungjwb"])) {
                     $query->where('t.dept_penanggungjwb', decryptForNumber($datafilter["dept_penanggungjwb"]));
+                }
+                if (!empty($datafilter["due_date"])) {
+                    $datadate = explode(' - ', $datafilter["due_date"]);
+                    if (count($datadate) > 0) {
+                        $query->where('t.due_date', ">=", $datadate[0]);
+                        $query->where('t.due_date', "<=", $datadate[1]);
+                    }
+                }
+                if (!empty($datafilter["desc_kategori_bahaya"])) {
+                    $jenisVal = $datafilter["desc_kategori_bahaya"];
+                    $query->where(function ($q) use ($jenisVal) {
+                        $q->where('t.desc_kategori_bahaya', $jenisVal)
+                          ->orWhere('jenis_m.name', $jenisVal);
+                    });
                 }
             });
         }
@@ -228,22 +305,30 @@ class ReportsAdminController extends Controller
         }
 
         $dataShift = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Type Shift'],
             $report->shift
         );
         $dataDataPelaporan = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Data Pelaporan'],
             $report->data_pelaporan
         );
         $dataKategori = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Kategori Bahaya'],
             $report->kategori_bahaya
         );
         $dataStatus = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Status Laporan'],
             $report->status_pelaporan
         );
@@ -251,23 +336,31 @@ class ReportsAdminController extends Controller
         // Untuk desc_kategori_bahaya (jenis detail) — buat semua opsi
         // Filter JS akan menentukan mana yang tampil berdasarkan kategori_bahaya
         $dataJenisKondisi = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Jenis Kondisi Tidak Aman'],
             $report->desc_kategori_bahaya
         );
         $dataJenisTindakan = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Jenis Tindakan Tidak Aman'],
             $report->desc_kategori_bahaya
         );
 
         $dataLokasi = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Lokasi'],
             $report->lokasi_bahaya
         );
         $dataDepartemen = $this->generateselect(
-            'thsedata_master', 'pk_hsedatamaster_id', 'name',
+            'thsedata_master',
+            'pk_hsedatamaster_id',
+            'name',
             ['type' => 'Departemen'],
             $report->dept_penanggungjwb
         );
@@ -306,39 +399,39 @@ class ReportsAdminController extends Controller
 
         // Validasi dengan Laravel validate
         $request->validate([
-            'data.dataform.0.tgl_pelaporan'         => 'required|date',
-            'data.dataform.0.lokasi_bahaya'          => 'required',
-            'data.dataform.0.shift'                  => 'required',
-            'data.dataform.0.data_pelaporan'         => 'required',
-            'data.dataform.0.posisi'                 => 'required',
-            'data.dataform.0.full_name'              => 'required',
-            'data.dataform.0.employee_no'            => 'required',
-            'data.dataform.0.desc_temuan_bahaya'     => 'required',
-            'data.dataform.0.rekomendasi_perbaikan'  => 'required',
-            'data.dataform.0.dept_penanggungjwb'     => 'required',
-            'data.dataform.0.nama_pengawas'          => 'required',
-            'data.dataform.0.due_date'               => 'required|date',
-            'data.dataform.0.status_pelaporan'       => 'required',
-            'data.dataform.0.document'               => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'data.dataform.0.tgl_pelaporan' => 'required|date',
+            'data.dataform.0.lokasi_bahaya' => 'required',
+            'data.dataform.0.shift' => 'required',
+            'data.dataform.0.data_pelaporan' => 'required',
+            'data.dataform.0.posisi' => 'required',
+            'data.dataform.0.full_name' => 'required',
+            'data.dataform.0.employee_no' => 'required',
+            'data.dataform.0.desc_temuan_bahaya' => 'required',
+            'data.dataform.0.rekomendasi_perbaikan' => 'required',
+            'data.dataform.0.dept_penanggungjwb' => 'required',
+            'data.dataform.0.nama_pengawas' => 'required',
+            'data.dataform.0.due_date' => 'required|date',
+            'data.dataform.0.status_pelaporan' => 'required',
+            'data.dataform.0.document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
-            'data.dataform.0.tgl_pelaporan.required'        => 'Tanggal pelaporan wajib diisi',
-            'data.dataform.0.tgl_pelaporan.date'            => 'Format tanggal pelaporan tidak valid',
-            'data.dataform.0.lokasi_bahaya.required'         => 'Lokasi bahaya wajib dipilih',
-            'data.dataform.0.shift.required'                 => 'Shift wajib dipilih',
-            'data.dataform.0.data_pelaporan.required'        => 'Data pelaporan wajib dipilih',
-            'data.dataform.0.posisi.required'                => 'Posisi / jabatan wajib diisi',
-            'data.dataform.0.full_name.required'             => 'Nama lengkap wajib diisi',
-            'data.dataform.0.employee_no.required'           => 'Nomor karyawan wajib diisi',
-            'data.dataform.0.desc_temuan_bahaya.required'    => 'Deskripsi temuan bahaya wajib diisi',
+            'data.dataform.0.tgl_pelaporan.required' => 'Tanggal pelaporan wajib diisi',
+            'data.dataform.0.tgl_pelaporan.date' => 'Format tanggal pelaporan tidak valid',
+            'data.dataform.0.lokasi_bahaya.required' => 'Lokasi bahaya wajib dipilih',
+            'data.dataform.0.shift.required' => 'Shift wajib dipilih',
+            'data.dataform.0.data_pelaporan.required' => 'Data pelaporan wajib dipilih',
+            'data.dataform.0.posisi.required' => 'Posisi / jabatan wajib diisi',
+            'data.dataform.0.full_name.required' => 'Nama lengkap wajib diisi',
+            'data.dataform.0.employee_no.required' => 'Nomor karyawan wajib diisi',
+            'data.dataform.0.desc_temuan_bahaya.required' => 'Deskripsi temuan bahaya wajib diisi',
             'data.dataform.0.rekomendasi_perbaikan.required' => 'Rekomendasi perbaikan wajib diisi',
-            'data.dataform.0.dept_penanggungjwb.required'    => 'Departemen penanggung jawab wajib dipilih',
-            'data.dataform.0.nama_pengawas.required'         => 'Nama pengawas wajib diisi',
-            'data.dataform.0.due_date.required'              => 'Due date wajib diisi',
-            'data.dataform.0.due_date.date'                  => 'Format due date tidak valid',
-            'data.dataform.0.status_pelaporan.required'      => 'Status laporan wajib dipilih',
-            'data.dataform.0.document.file'                  => 'File yang diupload tidak valid',
-            'data.dataform.0.document.mimes'                 => 'Format file harus JPG, JPEG, PNG, atau PDF',
-            'data.dataform.0.document.max'                   => 'Ukuran file tidak boleh lebih dari 5 MB',
+            'data.dataform.0.dept_penanggungjwb.required' => 'Departemen penanggung jawab wajib dipilih',
+            'data.dataform.0.nama_pengawas.required' => 'Nama pengawas wajib diisi',
+            'data.dataform.0.due_date.required' => 'Due date wajib diisi',
+            'data.dataform.0.due_date.date' => 'Format due date tidak valid',
+            'data.dataform.0.status_pelaporan.required' => 'Status laporan wajib dipilih',
+            'data.dataform.0.document.file' => 'File yang diupload tidak valid',
+            'data.dataform.0.document.mimes' => 'Format file harus JPG, JPEG, PNG, atau PDF',
+            'data.dataform.0.document.max' => 'Ukuran file tidak boleh lebih dari 5 MB',
         ]);
 
         try {
@@ -347,27 +440,27 @@ class ReportsAdminController extends Controller
             DB::beginTransaction();
 
             $updateData = [
-                'tgl_pelaporan'          => $dataform['tgl_pelaporan'] ?? null,
-                'lokasi_bahaya'          => ($dataform['lokasi_bahaya'] ?? null) === 'other'
+                'tgl_pelaporan' => $dataform['tgl_pelaporan'] ?? null,
+                'lokasi_bahaya' => ($dataform['lokasi_bahaya'] ?? null) === 'other'
                     ? ($dataform['lokasi_bahaya_other'] ?? null)
                     : (!empty($dataform['lokasi_bahaya']) ? decryptForNumber($dataform['lokasi_bahaya']) : null),
-                'shift'                  => !empty($dataform['shift']) ? decryptForNumber($dataform['shift']) : null,
-                'data_pelaporan'         => !empty($dataform['data_pelaporan']) ? decryptForNumber($dataform['data_pelaporan']) : null,
-                'kategori_bahaya'        => !empty($dataform['kategori_bahaya']) ? decryptForNumber($dataform['kategori_bahaya']) : null,
-                'desc_kategori_bahaya'   => ($dataform['desc_kategori_bahaya'] ?? null) === 'other'
+                'shift' => !empty($dataform['shift']) ? decryptForNumber($dataform['shift']) : null,
+                'data_pelaporan' => !empty($dataform['data_pelaporan']) ? decryptForNumber($dataform['data_pelaporan']) : null,
+                'kategori_bahaya' => !empty($dataform['kategori_bahaya']) ? decryptForNumber($dataform['kategori_bahaya']) : null,
+                'desc_kategori_bahaya' => ($dataform['desc_kategori_bahaya'] ?? null) === 'other'
                     ? ($dataform['desc_kategori_bahaya_other'] ?? null)
                     : (!empty($dataform['desc_kategori_bahaya']) ? decryptForNumber($dataform['desc_kategori_bahaya']) : null),
-                'desc_temuan_bahaya'     => $dataform['desc_temuan_bahaya'] ?? null,
-                'rekomendasi_perbaikan'  => $dataform['rekomendasi_perbaikan'] ?? null,
-                'employee_no'            => $dataform['employee_no'] ?? null,
-                'full_name'              => $dataform['full_name'] ?? null,
-                'posisi'                 => $dataform['posisi'] ?? null,
-                'dept_penanggungjwb'     => !empty($dataform['dept_penanggungjwb']) ? decryptForNumber($dataform['dept_penanggungjwb']) : null,
-                'nama_pengawas'          => $dataform['nama_pengawas'] ?? null,
-                'due_date'               => $dataform['due_date'] ?? null,
-                'status_pelaporan'       => !empty($dataform['status_pelaporan']) ? decryptForNumber($dataform['status_pelaporan']) : null,
-                'updated_date'           => now(),
-                'updated_by'             => Auth::user()->name ?? '',
+                'desc_temuan_bahaya' => $dataform['desc_temuan_bahaya'] ?? null,
+                'rekomendasi_perbaikan' => $dataform['rekomendasi_perbaikan'] ?? null,
+                'employee_no' => $dataform['employee_no'] ?? null,
+                'full_name' => $dataform['full_name'] ?? null,
+                'posisi' => $dataform['posisi'] ?? null,
+                'dept_penanggungjwb' => !empty($dataform['dept_penanggungjwb']) ? decryptForNumber($dataform['dept_penanggungjwb']) : null,
+                'nama_pengawas' => $dataform['nama_pengawas'] ?? null,
+                'due_date' => $dataform['due_date'] ?? null,
+                'status_pelaporan' => !empty($dataform['status_pelaporan']) ? decryptForNumber($dataform['status_pelaporan']) : null,
+                'updated_date' => now(),
+                'updated_by' => Auth::user()->name ?? '',
             ];
 
             // Handle document file upload
@@ -472,8 +565,17 @@ class ReportsAdminController extends Controller
                 $dataFilter = $request['data'][0];
             }
             ExportExcelReportsHSE::dispatch($dataFilter, $request->user());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Export Excel sedang diproses!'
+            ]);
         } catch (Exception $e) {
             Log::error("Export Excel Error: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memproses export. Silakan coba lagi.'
+            ]);
         }
     }
 }
