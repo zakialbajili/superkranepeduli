@@ -114,7 +114,9 @@
 
     <div class="login-card">
         <div class="login-header">
-            <i class="fa-solid fa-hard-hat"></i>
+            <!-- <i class="fa-solid fa-hard-hat"></i> -->
+            <img src="{{ asset('backend/dist/img/logohsepeduli.jpeg') }}" alt="" width="100" height="100"
+                class="rounded-circle mb-2">
             <h3>SUPERKRANE PEDULI</h3>
             <p>(Pekerja Dukung Lingkungan Aman)</p>
         </div>
