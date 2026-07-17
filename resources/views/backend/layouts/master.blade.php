@@ -65,13 +65,13 @@
         <aside class="main-sidebar sidebar-light-primary elevation-4">
             <!-- Brand Logo -->
             <a href="" class="brand-link">
-                {{-- <img src="{{ asset('backend/dist/img/logo.png') }}" alt="Master Utama"
-                    class="brand-image img-circle elevation-3" style="opacity: .8"> --}}
-                <div class="brand-image img-circle elevation-3 d-flex align-items-center justify-content-center"
+                <img src="{{ asset('backend/dist/img/logohsepeduli.jpeg') }}" alt="Master Utama"
+                    class="brand-image img-circle elevation-3" style="opacity: .8">
+                <!-- <div class="brand-image img-circle elevation-3 d-flex align-items-center justify-content-center"
                     style="width:30px;height:35px;background:#049a90;opacity:.8;">
-                    <!-- <i class="fas fa-cog text-white"></i> -->
+                    <i class="fas fa-cog text-white"></i>
                      <i class="fas fa-hard-hat text-white"></i>
-                </div>
+                </div> -->
 
 
                 <span class="brand-text font-weight-semibold">SUPERKRANE PEDULI</span>

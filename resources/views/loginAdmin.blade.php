@@ -7,6 +7,8 @@
 
     <!-- Fonts -->
     <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Bootstrap 5.1 -->
+    <link href="{{ asset('backend/dist/js/smu/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -260,9 +262,11 @@
         <div class="login-card">
 
             <div class="login-brand">
-                <div class="icon-circle">
+                <!-- <div class="icon-circle">
                     <i class="fas fa-hard-hat"></i>
-                </div>
+                </div> -->
+                <img src="{{ asset('backend/dist/img/logohsepeduli.jpeg') }}" alt="" width="100" height="100"
+                    class="rounded-circle mb-2">
                 <h1>Superkrane Peduli</h1>
                 <p>Portal Admin</p>
             </div>
@@ -283,7 +287,8 @@
                 </div>
 
                 <button type="submit" class="btn-login" id="btnLogin">
-                    <i class="fas fa-right-to-bracket mr-2" id="loginIcon" style="margin-right: 8px;"></i><span id="loginText">Masuk</span>
+                    <i class="fas fa-right-to-bracket mr-2" id="loginIcon" style="margin-right: 8px;"></i><span
+                        id="loginText">Masuk</span>
                 </button>
             </form>
 
