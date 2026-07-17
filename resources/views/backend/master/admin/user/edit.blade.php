@@ -34,14 +34,14 @@
                                         <div class="form-group">
                                             <label for="employee_no">Employee No</label>
                                             <input type="text" id="employee_no" name="employee_no" class="form-control"
-                                                value="{{ old('employee_no', $datauser->employee_no) }}">
+                                                value="{{ old('employee_no', $datauser->employee_no) }}" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="form-group">
                                             <label for="full_name">Nama</label>
                                             <input type="text" id="full_name" name="full_name" class="form-control"
-                                                value="{{ old('full_name', $datauser->full_name) }}">
+                                                value="{{ old('full_name', $datauser->full_name) }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -50,7 +50,7 @@
                                         <div class="form-group">
                                             <label for="posisi">Posisi</label>
                                             <input type="text" id="posisi" name="posisi" class="form-control"
-                                                value="{{ old('posisi', $datauser->posisi) }}">
+                                                value="{{ old('posisi', $datauser->posisi) }}" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
