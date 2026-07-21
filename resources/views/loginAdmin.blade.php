@@ -262,9 +262,6 @@
         <div class="login-card">
 
             <div class="login-brand">
-                <!-- <div class="icon-circle">
-                    <i class="fas fa-hard-hat"></i>
-                </div> -->
                 <img src="{{ asset('backend/dist/img/logohsepeduli.jpeg') }}" alt="" width="100" height="100"
                     class="rounded-circle mb-2">
                 <h1>Superkrane Peduli</h1>
