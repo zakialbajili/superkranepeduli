@@ -114,20 +114,6 @@ class HseReportController extends Controller
                 $lokasiFinal = decryptId($rawLokasi);
             }
 
-            // $rawLokasi = $request->lokasi_bahaya_select;
-
-            // if (blank($rawLokasi) || stripos($rawLokasi, 'other') !== false || stripos($rawLokasi, 'lainnya') !== false) {
-            //     // JIKA OTHER: Ambil langsung dari ketikan manual
-            //     $lokasiFinal = $request->lokasi_bahaya_other;
-            // }
-            // else {
-            //     // JIKA PILIH DARI DATABASE: Dekripsi ID-nya, lalu ambil teks 'name' aslinya
-            //     $lokasiId = decryptId($rawLokasi);
-            //     $lokasiFinal = DB::table('thsedata_master')
-            //         ->where('pk_hsedatamaster_id', $lokasiId)
-            //         ->value('name');
-            // }
-
             // ================================================================
             // 5. Logika Penentuan Detail Kategori Bahaya (Tindakan / Kondisi)
             // ================================================================
@@ -140,20 +126,6 @@ class HseReportController extends Controller
                 // JIKA PILIH DARI DATABASE: Dekripsi dan jadikan ID sebagai nilai final
                 $descKategoriFinal = decryptId($rawDetailBahaya);
             }
-
-            // $rawDetailBahaya = $request->desc_kategori_tindakan ?: $request->desc_kategori_kondisi;
-
-            // if (blank($rawDetailBahaya) || stripos($rawDetailBahaya, 'other') !== false || stripos($rawDetailBahaya, 'lainnya') !== false) {
-            //     // JIKA OTHER: Ambil langsung dari ketikan manual
-            //     $descKategoriFinal = $request->desc_kategori_bahaya_other;
-            // }
-            // else {
-            //     // JIKA PILIH DARI DATABASE: Dekripsi ID-nya, lalu ambil teks 'name' aslinya
-            //     $descId = decryptId($rawDetailBahaya);
-            //     $descKategoriFinal = DB::table('thsedata_master')
-            //         ->where('pk_hsedatamaster_id', $descId)
-            //         ->value('name');
-            // }
 
             // 6. Dekripsi untuk kolom-kolom yang menggunakan ID terenkripsi
             $shiftFinal = decryptId($request->shift);

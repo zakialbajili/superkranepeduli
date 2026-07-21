@@ -334,7 +334,6 @@ class ReportsAdminController extends Controller
         );
 
         // Untuk desc_kategori_bahaya (jenis detail) — buat semua opsi
-        // Filter JS akan menentukan mana yang tampil berdasarkan kategori_bahaya
         $dataJenisKondisi = $this->generateselect(
             'thsedata_master',
             'pk_hsedatamaster_id',
@@ -366,7 +365,6 @@ class ReportsAdminController extends Controller
         );
 
         // Deteksi custom text: jika lokasi_bahaya / desc_kategori_bahaya bukan FK numerik
-        // (yaitu teks mentah), flag untuk JS agar select ke "Lainnya..." dan input teks terisi
         $isLokasiCustom = !empty($report->lokasi_bahaya) && !is_numeric($report->lokasi_bahaya);
         $isJenisCustom = !empty($report->desc_kategori_bahaya) && !is_numeric($report->desc_kategori_bahaya);
 
