@@ -200,8 +200,7 @@ class HseReportController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
-                'message' => 'Gagal menyimpan laporan. Silakan hubungi Administrator.',
-                'error' => $th->getMessage()
+                'message' => 'Gagal menyimpan laporan. Silakan hubungi Administrator.'
             ], 500);
         }
     }
