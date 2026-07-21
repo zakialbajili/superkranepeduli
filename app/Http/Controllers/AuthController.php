@@ -78,8 +78,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
-                'message' => 'Terjadi kesalahan sistem.',
-                'error' => $th->getMessage()
+                'message' => 'Terjadi kesalahan sistem.'
             ], 500);
         }
     }

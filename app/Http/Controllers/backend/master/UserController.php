@@ -207,8 +207,7 @@ class UserController extends Controller
             DB::rollBack();
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal menambahkan data user!',
-                'error' => $th->getMessage()
+                'message' => 'Gagal menambahkan data user!'
             ], 500);
         }
 
