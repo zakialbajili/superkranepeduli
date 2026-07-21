@@ -309,11 +309,9 @@ class DashboardAdminController extends Controller
         ];
 
         // Leaderboard selalu urut berdasarkan peringkat (kolom 0 ascending)
-        // Tidak mendengarkan request order dari DataTable — semua kolom non-orderable
         $order = [$columns[0], 'asc'];
 
         // Subquery: group by employee_no untuk menghitung jumlah laporan per user,
-        // lengkap dengan ROW_NUMBER sebagai peringkat sebenarnya berdasarkan jumlah laporan.
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 
